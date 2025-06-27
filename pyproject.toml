@@ -1,0 +1,24 @@
+[project]
+name = "pymcp"
+version = "0.1.0"
+description = "A template repository for developing MCP servers in Python"
+readme = "README.md"
+authors = [
+    { name = "Anirban Basu", email = "anirbanbasu@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=2.9.2",
+]
+
+[project.scripts]
+pymcp = "pymcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+]
