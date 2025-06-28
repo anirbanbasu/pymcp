@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime, timezone
 
 
-PACKAGE_NAME = "pymcp"
+PACKAGE_NAME = "pymcp-template"
 package_metadata = metadata(PACKAGE_NAME)
 
 app = FastMCP(
@@ -34,8 +34,7 @@ app = FastMCP(
 
 class Base64EncodedBinaryDataResponse(BaseModel):
     """
-    A base64 encoded binary data type for MCP response.
-    This is used to represent binary data in a format that can be easily transmitted over MCP.
+    A base64 encoded binary data for MCP response along with its cryptographic hash.
     """
 
     data: str = Field(
@@ -44,11 +43,11 @@ class Base64EncodedBinaryDataResponse(BaseModel):
     )
     hash: str = Field(
         ...,
-        description="A hexadecimal digest of a cryptographic hash of the data, typically a SHA-256 or a SHA3-512.",
+        description="A hexadecimal digest of a cryptographic hash of the data, typically a SHA3-512.",
     )
     hash_algorithm: str = Field(
         ...,
-        description="The algorithm used to compute the hash, e.g., 'sha_256' or 'sha3_512'.",
+        description="The algorithm used to compute the hash, e.g., 'sha3_512'.",
     )
 
 

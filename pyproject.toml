@@ -1,7 +1,7 @@
 [project]
-name = "pymcp"
+name = "pymcp-template"
 version = "0.1.0"
-description = "A template repository for developing MCP servers in Python"
+description = "A template (repository) for developing MCP servers in Python"
 readme = "README.md"
 authors = [
     { name = "Anirban Basu", email = "anirbanbasu@users.noreply.github.com" }
@@ -21,6 +21,9 @@ dependencies = [
 
 [project.scripts]
 pymcp = "pymcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pymcp"]
 
 [build-system]
 requires = ["hatchling"]
