@@ -30,3 +30,6 @@ build-backend = "hatchling.build"
 dev = [
     "pre-commit>=4.2.0",
 ]
+test = [
+    "pytest>=8.4.1",
+]

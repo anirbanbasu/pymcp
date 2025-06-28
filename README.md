@@ -1,4 +1,4 @@
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue?logo=python&logoColor=3776ab&labelColor=e4e4e4)](https://www.python.org/downloads/release/python-3120/) [![smithery badge](https://smithery.ai/badge/@anirbanbasu/pymcp)](https://smithery.ai/server/@anirbanbasu/pymcp)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue?logo=python&logoColor=3776ab&labelColor=e4e4e4)](https://www.python.org/downloads/release/python-3120/) [![pytest](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest.yml/badge.svg)](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest.yml) [![smithery badge](https://smithery.ai/badge/@anirbanbasu/pymcp)](https://smithery.ai/server/@anirbanbasu/pymcp)
 
 
 <p align="center">
