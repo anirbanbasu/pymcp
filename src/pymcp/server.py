@@ -1,6 +1,8 @@
+import base64
 import signal
 import sys
 import string
+import hashlib
 import secrets
 import math
 from typing import Annotated, Optional
@@ -12,7 +14,7 @@ from mcp.types import (
 )
 from importlib.metadata import metadata
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from datetime import datetime, timezone
 
@@ -28,6 +30,29 @@ app = FastMCP(
     on_duplicate_resources="error",
     on_duplicate_tools="error",
 )
+
+
+class Base64EncodedBinaryDataResponse(BaseModel):
+    """
+    A base64 encoded binary data type for MCP response.
+    This is used to represent binary data in a format that can be easily transmitted over MCP.
+    """
+
+    data: str = Field(
+        ...,
+        description="Base64 encoded binary data.",
+    )
+    hash: str = Field(
+        ...,
+        description="A hexadecimal digest of a cryptographic hash of the data, typically a SHA-256 or a SHA3-512.",
+    )
+    hash_algorithm: str = Field(
+        ...,
+        description="The algorithm used to compute the hash, e.g., 'sha_256' or 'sha3_512'.",
+    )
+
+
+# 8<-- start of example tools -->8
 
 
 @app.tool(
@@ -145,6 +170,32 @@ async def permutations(
         )
 
     return math.perm(n, k)
+
+
+# 8<-- start of example resources -->8
+
+
+@app.resource(uri="data://logo")
+async def get_logo(ctx: Context) -> str:
+    """
+    Get the base64 encoded PNG logo of PyMCP.
+    """
+    await ctx.info("Reading the PNG logo for PyMCP.")
+    with open("resources/logo.png", "rb") as logo_file:
+        logo_content = logo_file.read()
+        sha3_512_hasher = hashlib.sha3_512()
+        sha3_512_hasher.update(logo_content)
+        hex_digest = sha3_512_hasher.hexdigest()
+        await ctx.info(
+            f"Read {len(logo_content)} bytes from the logo file. SHA3-512: {hex_digest}"
+        )
+        logo_file.close()
+    response = Base64EncodedBinaryDataResponse(
+        data=base64.b64encode(logo_content).decode("utf-8"),
+        hash=hex_digest,
+        hash_algorithm=sha3_512_hasher.name,
+    )
+    return response
 
 
 def main():
