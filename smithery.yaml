@@ -1,0 +1,15 @@
+# Check reference at https://smithery.ai/docs/build/project-config/smithery-yaml
+# runtime: "container"
+build:
+  dockerfile: "smithery.dockerfile"
+  dockerBuildPath: "."
+startCommand:
+  type: "stdio"  # Changed from http
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    {}
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'python3', args: ['-m', 'pymcp.server'] })
+  exampleConfig: {}
