@@ -7,6 +7,52 @@
 
 Primarily to be used as a template repository for developing MCP servers with [FastMCP](http://gofastmcp.com/) in Python, PyMCP is somewhat inspired by the [official everything MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/everything) in Typescript.
 
+# Components
+
+The following components are available on this MCP server.
+
+## Tools
+
+1. **`greet`**
+  - Greets the caller with a quintessential Hello World message.
+  - Input(s)
+    - `name`: _`string`_ (_optional_): The name to greet. Default value is none.
+  - Output(s)
+    - `TextContent` with a UTC time-stamped greeting.
+2. **`generate_password`**
+  - Generates a random password with specified length, optionally including special characters and conforming to the complexity requirements of at least one lowercase letter, one uppercase letter, and two digits. If special characters are included, it will also contain at least one such character.
+  - Input(s)
+    - `length`: _`integer`_: The length of the generated password. The value must be an integer between 8 and 64, both inclusive.
+    - `use_special_chars`: _`boolean`_ (_optional_): A flag to indicate whether the password should include special characters. Default value is `False`.
+  - Output(s)
+    - `TextContent` with the generated password.
+3. **`permutations`**
+  - Calculates the number of ways to choose $k$ items from $n$ items without repetition and with order. If $k$ is not provided, it defaults to $n$.
+  - Input(s)
+    - `n`: _`integer`_: The number of items to choose from. This should be a non-zero, positive integer.
+    - `k`: _`integer`_ (_optional_): The number of items to choose. Default value is the value of `n`.
+  - Output(s)
+    - `TextContent` with number of ways to choose $k$ items from $n$, essentially ${}^{n}P_{k}$.
+
+## Resources
+
+1. **`get_logo`**
+  - Retrieves the Base64 encoded PNG logo of PyMCP along with its SHA3-512 hash.
+  - URL: `data://logo`
+  - Output(s)
+    - `TextContent` with a `Base64EncodedBinaryDataResponse` Pydantic object with the following fields.
+      - `data`: _`string`_: The Base64 encoded PNG logo of PyMCP.
+      - `hash`: _`string`_: The hexadecimal encoded cryptographic hash of the raw binary data, which is represented by its Base64 encoded string equivalent in `data`. (The hex encoded hash value is expected to be _6414b58d9e44336c2629846172ec5c4008477a9c94fa572d3419c723a8b30eb4c0e2909b151fa13420aaa6a2596555b29834ac9b2baab38919c87dada7a6ef14_.)
+      - `hash_algorithm`: _`string`_: The cryptographic hash algorithm used, e.g., _sha3_512_.
+
+1. **`unicode_modulo10`**
+  - Computes the modulus 10 of a given number and returns a Unicode character representing the result. The character is chosen based on whether the modulus is odd or even. For odd modulus, it uses the Unicode character starting from ❶ (U+2776). For even modulus, it uses the Unicode character starting from ① (U+2460). If the modulus is 0, it returns the circled zero character ⓪ (U+24EA).
+  - URL: `data://modulo10/{number}`
+  - Input(s)
+    - `number`: _`integer`_: A positive integer between 1 and 1000, both inclusive.
+  - Output(s)
+    - `TextContent` with a string representing the correct Unicode character.
+
 # Installation
 
 The directory where you clone this repository will be referred to as the _working directory_ or _WD_ hereinafter.

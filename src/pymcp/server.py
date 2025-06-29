@@ -43,7 +43,7 @@ class Base64EncodedBinaryDataResponse(BaseModel):
     )
     hash: str = Field(
         ...,
-        description="A hexadecimal digest of a cryptographic hash of the data, typically a SHA3-512.",
+        description="A hexadecimal encoded of a cryptographic hash of the raw binary data, typically a SHA3-512.",
     )
     hash_algorithm: str = Field(
         ...,
@@ -171,6 +171,8 @@ async def permutations(
     return math.perm(n, k)
 
 
+# 8<-- end of example tools -->8
+
 # 8<-- start of example resources -->8
 
 
@@ -195,6 +197,51 @@ async def get_logo(ctx: Context) -> str:
         hash_algorithm=sha3_512_hasher.name,
     )
     return response
+
+
+@app.resource(uri="data://modulo10/{number}")
+async def unicode_modulo10(
+    ctx: Context,
+    number: Annotated[
+        int,
+        Field(
+            ...,
+            description="The number whose modulus 10 should be returned.",
+            ge=1,
+            le=1000,
+        ),
+    ],
+) -> str:
+    """
+    Computes the modulus 10 of a given number and returns a Unicode character representing the result.
+    The character is chosen based on whether the modulus is odd or even:
+    - For odd modulus, it uses the Unicode character starting from ❶ (U+2776).
+    - For even modulus, it uses the Unicode character starting from ① (U+2460).
+    - If the modulus is 0, it returns the circled zero character ⓪ (U+24EA).
+    """
+    modulus = number % 10
+    odd_base = 0x2776  # U+2776 is the base for odd modulus symbols. It is the symbol ❶. Remember to subtract 1.
+    even_base = 0x2460  # U+2460 is the base for even modulus symbols. It is the symbol ①. Remember to subtract 1.
+    circled_zero = 0x24EA  # U+24EA is the circled zero symbol (⓪).
+    if modulus % 2 != 0:
+        # Odd modulus, start with odd_base
+        await ctx.info(
+            f"{number} modulo 10 is odd, using character type {chr(int(hex(odd_base), 16))} to represent the modulus."
+        )
+        unicode_symbol = chr(int(hex(odd_base + modulus - 1), 16))
+    else:
+        await ctx.info(
+            f"{number} modulo 10 is even, using character type {chr(int(hex(circled_zero), 16))} to represent the modulus."
+        )
+        unicode_symbol = (
+            chr(int(hex(even_base + modulus - 1), 16))
+            if modulus != 0
+            else chr(int(hex(circled_zero), 16))
+        )
+    return unicode_symbol
+
+
+# 8<-- end of example resources -->8
 
 
 def main():
