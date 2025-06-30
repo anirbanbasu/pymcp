@@ -1,4 +1,4 @@
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue?logo=python&logoColor=3776ab&labelColor=e4e4e4)](https://www.python.org/downloads/release/python-3120/) [![pytest](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest.yml/badge.svg)](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest.yml) [![PyPI](https://img.shields.io/pypi/v/pymcp-template?label=pypi%20package)](https://pypi.org/project/pymcp-template/#history)  [![smithery badge](https://smithery.ai/badge/@anirbanbasu/pymcp)](https://smithery.ai/server/@anirbanbasu/pymcp)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue?logo=python&logoColor=3776ab&labelColor=e4e4e4)](https://www.python.org/downloads/release/python-3120/) [![pytest](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest.yml/badge.svg)](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest.yml) [![PyPI](https://img.shields.io/pypi/v/pymcp-template?label=pypi%20package)](https://pypi.org/project/pymcp-template/#history) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/anirbanbasu/pymcp/latest) [![smithery badge](https://smithery.ai/badge/@anirbanbasu/pymcp)](https://smithery.ai/server/@anirbanbasu/pymcp)
 
 
 <p align="center">
@@ -36,7 +36,7 @@ The following components are available on this MCP server.
 
 ## Resources
 
-1. **`get_logo`**
+1. **`resource_logo`**
   - Retrieves the Base64 encoded PNG logo of PyMCP along with its SHA3-512 hash.
   - URL: `data://logo`
   - Output(s)
@@ -45,13 +45,28 @@ The following components are available on this MCP server.
       - `hash`: _`string`_: The hexadecimal encoded cryptographic hash of the raw binary data, which is represented by its Base64 encoded string equivalent in `data`. (The hex encoded hash value is expected to be _6414b58d9e44336c2629846172ec5c4008477a9c94fa572d3419c723a8b30eb4c0e2909b151fa13420aaa6a2596555b29834ac9b2baab38919c87dada7a6ef14_.)
       - `hash_algorithm`: _`string`_: The cryptographic hash algorithm used, e.g., _sha3_512_.
 
-1. **`unicode_modulo10`**
-  - Computes the modulus 10 of a given number and returns a Unicode character representing the result. The character is chosen based on whether the modulus is odd or even. For odd modulus, it uses the Unicode character starting from ❶ (U+2776). For even modulus, it uses the Unicode character starting from ① (U+2460). If the modulus is 0, it returns the circled zero character ⓪ (U+24EA).
+2. **`resource_logo_svg`**
+  - Retrieves the SVG logo of PyMCP.
+  - URL: `data://logo_svg`
+  - Output(s)
+    - `TextContent` with a the SVG data for the PyMCP logo.
+
+3. **`resource_unicode_modulo10`**
+  - Computes the modulus 10 of a given number and returns a Unicode character representing the result. The character is chosen based on whether the modulus is odd or even. For odd modulus, it uses the Unicode characters ❶ (U+2776), ❸ (U+2778), ❺ (U+277A), ❼ (U+277C), and ❾ (U+277E). For even modulus, it uses the Unicode characters ⓪ (U+24EA), ② (U+2461), ④ (U+2463), ⑥ (U+2465), and ⑧ (U+2467).
   - URL: `data://modulo10/{number}`
   - Input(s)
     - `number`: _`integer`_: A positive integer between 1 and 1000, both inclusive.
   - Output(s)
     - `TextContent` with a string representing the correct Unicode character.
+
+## Prompts
+
+1. **`code_prompt`**
+  - Get a prompt to write a code snippet in Python based on the specified task..
+  - Input(s)
+    - `task`: _`string`_: The description of the task for which a code implementation prompt will be generated.
+  - Output(s)
+    - `PromptMessage` with the role of a `user` and a `content` as a `TextContent` representing the prompt.
 
 # Installation
 
@@ -106,6 +121,40 @@ The server entry to run with `stdio` transport that you can use with systems suc
 ```
 
 Instead of having `pymcp` as the last item in the list of `args`, you may need to specify the full path to the script, e.g., _WD_`/.venv/bin/pymcp`.
+
+# Remotely hosted options
+
+The currently available remotely hosted options are as follows.
+
+ - Glama.AI: https://glama.ai/mcp/servers/@anirbanbasu/pymcp
+ - Smithery.AI: https://smithery.ai/server/@anirbanbasu/pymcp
+
+# Testing and coverage
+
+To run the provided set of tests using `pytest`, execute the following in _WD_. Append the flag `--capture=tee-sys` to the following command to see the console output during the tests.
+
+```bash
+uv run --group test pytest tests/
+```
+
+To get a report on coverage while invoking the tests, run the following two commands.
+
+```bash
+uv run --group test coverage run -m pytest tests/
+uv run coverage report -m
+```
+
+This will generate something like the following output.
+
+```bash
+Name                    Stmts   Miss  Cover   Missing
+-----------------------------------------------------
+src/pymcp/__init__.py       0      0   100%
+src/pymcp/server.py        93      8    91%   162, 164, 284-291, 295
+tests/__init__.py           0      0   100%
+tests/test_server.py      120      0   100%
+-----------------------------------------------------
+```
 
 # Contributing
 

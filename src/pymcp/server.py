@@ -1,5 +1,4 @@
 import base64
-import signal
 import sys
 import string
 import hashlib
@@ -7,6 +6,7 @@ import secrets
 import math
 from typing import Annotated, Optional
 from fastmcp import FastMCP, Context
+from fastmcp.prompts.prompt import PromptMessage, TextContent
 from mcp import McpError
 from mcp.types import (
     ErrorData,
@@ -176,8 +176,8 @@ async def permutations(
 # 8<-- start of example resources -->8
 
 
-@app.resource(uri="data://logo")
-async def get_logo(ctx: Context) -> str:
+@app.resource(uri="data://logo", tags=["logo", "png", "example"])
+async def resource_logo(ctx: Context) -> str:
     """
     Get the base64 encoded PNG logo of PyMCP.
     """
@@ -192,15 +192,30 @@ async def get_logo(ctx: Context) -> str:
         )
         logo_file.close()
     response = Base64EncodedBinaryDataResponse(
-        data=base64.b64encode(logo_content).decode("utf-8"),
+        data=base64.b64encode(logo_content).decode(),
         hash=hex_digest,
         hash_algorithm=sha3_512_hasher.name,
     )
     return response
 
 
+@app.resource(
+    uri="data://logo_svg", mime_type="image/svg+xml", tags=["logo", "svg", "example"]
+)
+async def resource_logo_svg(ctx: Context) -> str:
+    """
+    Get the PyMCP logo as SVG.
+    """
+    await ctx.info("Reading the SVG logo for PyMCP.")
+    with open("resources/logo.svg", "rb") as logo_file:
+        logo_content = logo_file.read()
+        await ctx.info(f"Read {len(logo_content)} bytes from the SVG logo file.")
+        logo_file.close()
+    return logo_content.decode()
+
+
 @app.resource(uri="data://modulo10/{number}")
-async def unicode_modulo10(
+async def resource_unicode_modulo10(
     ctx: Context,
     number: Annotated[
         int,
@@ -244,17 +259,36 @@ async def unicode_modulo10(
 # 8<-- end of example resources -->8
 
 
-def main():
-    def sigint_handler(signal, frame):
-        """
-        Signal handler to shut down the server gracefully.
-        """
-        # This is for demonstration purposes only. It may be useful with a custom middleware or ASGI.
-        sys.exit(0)
+# 8<-- start of example prompts -->8
+@app.prompt(
+    tags=["example", "code-generation"],
+)
+async def code_prompt(ctx: Context, task: str) -> str:
+    """
+    Get a prompt to write a code snippet in Python based on the specified task.
+    """
+    content = f"""Write a Python code snippet to perform the following task:
+    [TASK]
+    {task}
+    [/TASK]
+    The code should be well-commented and follow best practices.
+    Make sure to include necessary imports and handle any exceptions that may arise."""
 
-    signal.signal(signal.SIGINT, sigint_handler)
-    # Run the FastMCP server using stdio. Other transports can be configured as needed.
-    app.run()
+    return PromptMessage(role="user", content=TextContent(type="text", text=content))
+
+
+# 8<-- end of example prompts -->8
+
+
+def main():
+    try:
+        # Run the FastMCP server using stdio. Other transports can be configured as needed.
+        app.run()
+    except KeyboardInterrupt:
+        sys.exit(0)
+    finally:
+        # Cleanup if necessary
+        pass
 
 
 if __name__ == "__main__":
