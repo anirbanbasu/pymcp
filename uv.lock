@@ -240,8 +240,8 @@ wheels = [
 
 [[package]]
 name = "fastmcp"
-version = "2.9.3.dev92+e9046e3"
-source = { git = "https://github.com/jlowin/fastmcp.git#e9046e3f04f0c32c4b3daa974a7c286d43d31c90" }
+version = "2.9.3.dev97+d7969b1"
+source = { git = "https://github.com/jlowin/fastmcp.git#d7969b159ebd06e47aa797d64d93c0f3d23a6d68" }
 dependencies = [
     { name = "authlib" },
     { name = "exceptiongroup" },
