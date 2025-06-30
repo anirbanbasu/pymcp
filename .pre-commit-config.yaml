@@ -25,10 +25,21 @@ repos:
     rev: v0.12.0
     hooks:
       # Run the linter.
-      - id: ruff
+      - id: ruff-check
         args: [--fix, --exit-non-zero-on-fix, --respect-gitignore]
         exclude: ".*uv.lock|.*_static"
       # Run the formatter.
       - id: ruff-format
         args: [--respect-gitignore]
         exclude: ".*uv.lock|.*_static"
+  # Inspired by: https://medium.com/@fistralpro/pytest-pre-commit-hook-b492edd0560e
+  # Running pytest with uv will slow down the commit process.
+  - repo: local
+    hooks:
+    - id: pytest
+      name: pytest using uv
+      entry: uv run --group test pytest tests/
+      language: system
+      types: [python]
+      pass_filenames: false
+      always_run: true
