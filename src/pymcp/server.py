@@ -171,6 +171,24 @@ async def permutations(
     return math.perm(n, k)
 
 
+@app.tool(
+    tags=["pirate-summary", "llm-samping", "example"],
+)
+async def pirate_summary(ctx: Context, text: str) -> str:
+    """
+    Summarise the given text in a pirate style.
+    This is an example of a tool that can use LLM sampling to generate a summary.
+    """
+    await ctx.info("Summarising text in pirate style using client LLM sampling.")
+    response = await ctx.sample(
+        messages=text,
+        system_prompt="Your task is to summarise a given text in a pirate style. Use a fun and engaging tone but be concise.",
+        temperature=0.9,  # High creativity
+        max_tokens=1024,  # Pirates can be a bit verbose!
+    )
+    return response.text
+
+
 # 8<-- end of example tools -->8
 
 # 8<-- start of example resources -->8

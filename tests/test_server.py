@@ -2,9 +2,12 @@ import asyncio
 from datetime import datetime
 import re
 import string
+import uuid
 from fastmcp import Client
 import pytest
 from fastmcp.prompts.prompt import TextContent
+from fastmcp.client.sampling import SamplingMessage, SamplingParams, RequestContext
+
 
 from pymcp.server import (
     app as target_mcp_server,
@@ -14,10 +17,18 @@ from pymcp.server import (
     greet,
     package_metadata,
     permutations,
+    pirate_summary,
     resource_logo,
     resource_logo_svg,
     resource_unicode_modulo10,
 )
+
+
+async def random_llm_sampling_handler(
+    messages: list[SamplingMessage], params: SamplingParams, context: RequestContext
+) -> str:
+    # Since we do not have a language model at our disposal, ignore all the paramers and generate a unique ID.
+    return str(uuid.uuid4())
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -28,6 +39,7 @@ def mcp_client():
     mcp_client = Client(
         transport=target_mcp_server,
         timeout=60,
+        sampling_handler=random_llm_sampling_handler,
     )
     return mcp_client
 
@@ -296,4 +308,29 @@ class TestMCPServer:
         assert result.text.isdigit(), "Expected the response to be a number."
         assert int(result.text) == 518918400, (
             f"Expected 518918400 permutations for n=16, k=8. Obtained {result.text}."
+        )
+
+    def test_tool_pirate_summary(self, mcp_client: Client):
+        f"""
+        Test to call the {pirate_summary.name} tool on the MCP server.
+        """
+        results = asyncio.run(
+            self.call_tool(
+                pirate_summary.name,
+                mcp_client,
+                text="This is a sample text to request the summary of.",
+            )
+        )
+        assert len(results) == 1, (
+            f"Expected one result for the {pirate_summary.name} tool."
+        )
+        result = results[0]
+        assert hasattr(result, "text"), (
+            "Expected the result to have a 'text' attribute containing the response."
+        )
+        # Since we do not have a language model at our disposal, we expect a UUID.
+        uuid_pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        match = re.match(uuid_pattern, result.text)
+        assert match, (
+            f"Expected the response to be a UUID. The obtained response does not match the expected format: {result.text}"
         )

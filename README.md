@@ -33,6 +33,12 @@ The following components are available on this MCP server.
     - `k`: _`integer`_ (_optional_): The number of items to choose. Default value is the value of `n`.
   - Output(s)
     - `TextContent` with number of ways to choose $k$ items from $n$, essentially ${}^{n}P_{k}$.
+4. **`pirate_summarise`**
+  - Summarises the given text in a pirate style. _This tool uses LLM client sampling. Hence, a sampling handler must exist on the client-side._
+  - Input(s)
+    - `text`: _`string`_: The text to summarise.
+  - Output(s)
+    - `TextContent` with the summary of `text` in pirate speak.
 
 ## Resources
 
