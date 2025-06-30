@@ -1,4 +1,5 @@
 import base64
+import random
 import sys
 import string
 import hashlib
@@ -17,6 +18,12 @@ from importlib.metadata import metadata
 from pydantic import BaseModel, Field
 
 from datetime import datetime, timezone
+
+from fastmcp.server.elicitation import (
+    AcceptedElicitation,
+    DeclinedElicitation,
+    CancelledElicitation,
+)
 
 
 PACKAGE_NAME = "pymcp-template"
@@ -187,6 +194,53 @@ async def pirate_summary(ctx: Context, text: str) -> str:
         max_tokens=1024,  # Pirates can be a bit verbose!
     )
     return response.text
+
+
+@app.tool(
+    tags=["pirate-summary", "llm-samping", "example"],
+)
+async def vonmises_random(
+    ctx: Context,
+    mu: Annotated[
+        float,
+        Field(
+            description="The mean angle, expressed in radians between 0 and 2*pi",
+            ge=0,
+            le=2 * math.pi,
+        ),
+    ],
+) -> str:
+    """
+    Generate a random number from the von Mises distribution.
+    This is an example of a tool that uses elicitation to obtain a required parameter.
+    """
+    await ctx.info(
+        "Requesting the user for the value of kappa for von Mises distribution."
+    )
+    response = await ctx.elicit(
+        message="Please provide the value of kappa (κ) for the von Mises distribution. It should be a positive number.",
+        response_type=float,
+    )
+    match response:
+        case AcceptedElicitation(data=kappa):
+            if kappa < 0:
+                raise McpError(
+                    error=ErrorData(
+                        code=INVALID_PARAMS,
+                        message="kappa (κ) must be a positive number.",
+                    )
+                )
+        case DeclinedElicitation():
+            await ctx.warning(
+                "User declined to provide kappa (κ). Using default value of 1.0."
+            )
+            kappa = 1.0
+        case CancelledElicitation():
+            await ctx.warning(
+                "User cancelled the operation. The random number will NOT be generated."
+            )
+            return None
+    return str(random.vonmisesvariate(mu=mu, kappa=kappa))
 
 
 # 8<-- end of example tools -->8

@@ -1,5 +1,7 @@
 import asyncio
 from datetime import datetime
+import math
+import random
 import re
 import string
 import uuid
@@ -7,6 +9,7 @@ from fastmcp import Client
 import pytest
 from fastmcp.prompts.prompt import TextContent
 from fastmcp.client.sampling import SamplingMessage, SamplingParams, RequestContext
+from fastmcp.client.elicitation import ElicitResult
 
 
 from pymcp.server import (
@@ -21,6 +24,7 @@ from pymcp.server import (
     resource_logo,
     resource_logo_svg,
     resource_unicode_modulo10,
+    vonmises_random,
 )
 
 
@@ -29,6 +33,13 @@ async def random_llm_sampling_handler(
 ) -> str:
     # Since we do not have a language model at our disposal, ignore all the paramers and generate a unique ID.
     return str(uuid.uuid4())
+
+
+async def random_elicitation_handler(
+    message: str, response_type: type, params, context
+) -> ElicitResult:
+    # Since we are in the midst of a test setup, ignore all the paramers and generate a response.
+    return response_type(value=random.uniform(0.0, 1.0))
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -40,6 +51,7 @@ def mcp_client():
         transport=target_mcp_server,
         timeout=60,
         sampling_handler=random_llm_sampling_handler,
+        elicitation_handler=random_elicitation_handler,
     )
     return mcp_client
 
@@ -207,8 +219,13 @@ class TestMCPServer:
                 name=name_to_be_greeted,
             )
         )
-        assert len(results) == 1, f"Expected one result for the {greet.name} tool."
-        result = results[0]
+        assert hasattr(results, "content"), (
+            "Expected the results to have a 'content' attribute."
+        )
+        assert len(results.content) == 1, (
+            f"Expected one result for the {greet.name} tool."
+        )
+        result = results.content[0]
         assert hasattr(result, "text"), (
             "Expected the result to have a 'text' attribute containing the response."
         )
@@ -240,8 +257,13 @@ class TestMCPServer:
                 name=name_to_be_greeted,
             )
         )
-        assert len(results) == 1, f"Expected one result for the {greet.name} tool."
-        result = results[0]
+        assert hasattr(results, "content"), (
+            "Expected the results to have a 'content' attribute."
+        )
+        assert len(results.content) == 1, (
+            f"Expected one result for the {greet.name} tool."
+        )
+        result = results.content[0]
         assert hasattr(result, "text"), (
             "Expected the result to have a 'text' attribute containing the response."
         )
@@ -271,16 +293,19 @@ class TestMCPServer:
         password_length = 8
         results = asyncio.run(
             self.call_tool(
-                "generate_password",
+                generate_password.name,
                 mcp_client,
                 length=password_length,
                 use_special_chars=True,
             )
         )
-        assert len(results) == 1, (
+        assert hasattr(results, "content"), (
+            "Expected the results to have a 'content' attribute."
+        )
+        assert len(results.content) == 1, (
             f"Expected one result for the {generate_password.name} tool."
         )
-        result = results[0]
+        result = results.content[0]
         assert hasattr(result, "text"), (
             "Expected the result to have a 'text' attribute containing the response."
         )
@@ -298,10 +323,13 @@ class TestMCPServer:
         Test to call the {permutations.name} tool on the MCP server.
         """
         results = asyncio.run(self.call_tool(permutations.name, mcp_client, n=16, k=8))
-        assert len(results) == 1, (
+        assert hasattr(results, "content"), (
+            "Expected the results to have a 'content' attribute."
+        )
+        assert len(results.content) == 1, (
             f"Expected one result for the {permutations.name} tool."
         )
-        result = results[0]
+        result = results.content[0]
         assert hasattr(result, "text"), (
             "Expected the result to have a 'text' attribute containing the response."
         )
@@ -321,10 +349,13 @@ class TestMCPServer:
                 text="This is a sample text to request the summary of.",
             )
         )
-        assert len(results) == 1, (
+        assert hasattr(results, "content"), (
+            "Expected the results to have a 'content' attribute."
+        )
+        assert len(results.content) == 1, (
             f"Expected one result for the {pirate_summary.name} tool."
         )
-        result = results[0]
+        result = results.content[0]
         assert hasattr(result, "text"), (
             "Expected the result to have a 'text' attribute containing the response."
         )
@@ -333,4 +364,26 @@ class TestMCPServer:
         match = re.match(uuid_pattern, result.text)
         assert match, (
             f"Expected the response to be a UUID. The obtained response does not match the expected format: {result.text}"
+        )
+
+    def test_tool_vonmises_random(self, mcp_client: Client):
+        f"""
+        Test to call the {vonmises_random.name} tool on the MCP server.
+        """
+        results = asyncio.run(
+            self.call_tool(
+                vonmises_random.name,
+                mcp_client,
+                mu=math.pi * random.uniform(0, 2),  # Random mu between 0 and 2*pi
+            )
+        )
+        assert hasattr(results, "content"), (
+            "Expected the results to have a 'content' attribute."
+        )
+        assert len(results.content) == 1, (
+            f"Expected one result for the {vonmises_random.name} tool."
+        )
+        result = results.content[0]
+        assert hasattr(result, "text"), (
+            "Expected the result to have a 'text' attribute containing the response."
         )

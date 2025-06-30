@@ -25,6 +25,9 @@ pymcp = "pymcp.server:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/pymcp"]
 
+[tool.uv.sources]
+fastmcp = { git = "https://github.com/jlowin/fastmcp.git" }
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
