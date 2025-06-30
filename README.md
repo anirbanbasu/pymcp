@@ -147,19 +147,20 @@ To get a report on coverage while invoking the tests, run the following two comm
 
 ```bash
 uv run --group test coverage run -m pytest tests/
-uv run coverage report -m
+uv run coverage report
 ```
 
 This will generate something like the following output.
 
 ```bash
-Name                    Stmts   Miss  Cover   Missing
------------------------------------------------------
+Name                    Stmts   Miss  Cover
+-------------------------------------------
 src/pymcp/__init__.py       0      0   100%
-src/pymcp/server.py        93      8    91%   162, 164, 284-291, 295
+src/pymcp/server.py        98      8    92%
 tests/__init__.py           0      0   100%
-tests/test_server.py      120      0   100%
------------------------------------------------------
+tests/test_server.py      135      0   100%
+-------------------------------------------
+TOTAL                     233      8    97%
 ```
 
 # Contributing
