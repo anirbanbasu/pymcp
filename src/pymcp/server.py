@@ -197,7 +197,7 @@ async def pirate_summary(ctx: Context, text: str) -> str:
 
 
 @app.tool(
-    tags=["pirate-summary", "llm-samping", "example"],
+    tags=["experimental", "elicitation", "example"],
 )
 async def vonmises_random(
     ctx: Context,
