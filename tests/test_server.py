@@ -18,7 +18,7 @@ from pymcp.server import (
     code_prompt,
     generate_password,
     greet,
-    package_metadata,
+    package_version,
     permutations,
     pirate_summary,
     resource_logo,
@@ -229,7 +229,7 @@ class TestMCPServer:
         assert hasattr(result, "text"), (
             "Expected the result to have a 'text' attribute containing the response."
         )
-        pattern = r"Hello(,)? (.+)! Welcome to the pymcp-template (\d+\.\d+\.\d+) server! The current date time in UTC is ([\d\-T:.+]+)."
+        pattern = r"Hello(,?) (.+)! Welcome to the pymcp-template (\d+\.\d+\.\d+(\.?[a-zA-Z]+\.?\d+)?) server! The current date time in UTC is ([\d\-T:.+]+)."
         match = re.match(pattern, result.text)
         assert match, (
             f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result.text}"
@@ -239,17 +239,17 @@ class TestMCPServer:
             f"Expected the name in the greeting to be '{name_to_be_greeted}', but got '{name}'."
         )
         version = match.group(3)  # Extracted version
-        assert version == package_metadata["Version"], (
-            f"Expected the version in the greeting to be '{package_metadata['Version']}', but got '{version}'."
+        assert version == package_version, (
+            f"Expected the version in the greeting to be '{package_version}', but got '{version}'."
         )
-        datetime_str = match.group(4)  # Extracted date-time
+        datetime_str = match.group(5)  # Extracted date-time
         extracted_datetime = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f%z")
         assert isinstance(extracted_datetime, datetime), (
             f"Expected the date-time to be a valid datetime object in the format %Y-%m-%dT%H:%M:%S.%f%z but obtained {datetime_str}"
         )
 
         # Try without specifying the name
-        name_to_be_greeted = None
+        name_to_be_greeted = results = match = name = version = datetime_str = None
         results = asyncio.run(
             self.call_tool(
                 greet.name,
@@ -267,7 +267,6 @@ class TestMCPServer:
         assert hasattr(result, "text"), (
             "Expected the result to have a 'text' attribute containing the response."
         )
-        pattern = r"Hello(,)? (.+)! Welcome to the pymcp-template (\d+\.\d+\.\d+) server! The current date time in UTC is ([\d\-T:.+]+)."
         match = re.match(pattern, result.text)
         assert match, (
             f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result.text}"
@@ -277,10 +276,10 @@ class TestMCPServer:
             f"Expected the name in the greeting to be '{name_to_be_greeted}', but got '{name}'."
         )
         version = match.group(3)  # Extracted version
-        assert version == package_metadata["Version"], (
-            f"Expected the version in the greeting to be '{package_metadata['Version']}', but got '{version}'."
+        assert version == package_version, (
+            f"Expected the version in the greeting to be '{package_version}', but got '{version}'."
         )
-        datetime_str = match.group(4)  # Extracted date-time
+        datetime_str = match.group(5)  # Extracted date-time
         extracted_datetime = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f%z")
         assert isinstance(extracted_datetime, datetime), (
             f"Expected the date-time to be a valid datetime object in the format %Y-%m-%dT%H:%M:%S.%f%z but obtained {datetime_str}"

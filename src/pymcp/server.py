@@ -13,7 +13,7 @@ from mcp.types import (
     ErrorData,
     INVALID_PARAMS,
 )
-from importlib.metadata import metadata
+from importlib.metadata import version
 
 from pydantic import BaseModel, Field
 
@@ -27,11 +27,11 @@ from fastmcp.server.elicitation import (
 
 
 PACKAGE_NAME = "pymcp-template"
-package_metadata = metadata(PACKAGE_NAME)
+package_version = version(PACKAGE_NAME)
 
 app = FastMCP(
     name=PACKAGE_NAME,
-    version=package_metadata["Version"],
+    version=package_version,
     instructions="A simple MCP server for testing purposes.",
     on_duplicate_prompts="error",
     on_duplicate_resources="error",
@@ -77,7 +77,7 @@ async def greet(
     ] = None,
 ) -> str:
     """Greet the caller with a quintessential Hello World message."""
-    welcome_message = f"Welcome to the {PACKAGE_NAME} {package_metadata['Version']} server! The current date time in UTC is {datetime.now(timezone.utc).isoformat()}."
+    welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(timezone.utc).isoformat()}."
     if name is None or name.strip() == "":
         await ctx.warning("No name provided, using default greeting.")
         return f"Hello World! {welcome_message}"

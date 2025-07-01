@@ -7,6 +7,6 @@ WORKDIR /app
 
 COPY src pyproject.toml README.md LICENSE ./
 # Install the latest version from the cloned repository
-RUN pip install --upgrade pip && pip install --no-cache-dir .
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 ENTRYPOINT ["python3", "-m", "pymcp.server"]

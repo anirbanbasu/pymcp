@@ -240,8 +240,8 @@ wheels = [
 
 [[package]]
 name = "fastmcp"
-version = "2.9.3.dev97+d7969b1"
-source = { git = "https://github.com/jlowin/fastmcp.git#d7969b159ebd06e47aa797d64d93c0f3d23a6d68" }
+version = "2.9.3.dev111+108890c"
+source = { git = "https://github.com/jlowin/fastmcp.git#108890c1404504dc1e679ca412cea35f1dcc3344" }
 dependencies = [
     { name = "authlib" },
     { name = "exceptiongroup" },
@@ -565,7 +565,7 @@ wheels = [
 
 [[package]]
 name = "pymcp-template"
-version = "0.1.2"
+version = "0.1.2b2"
 source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },

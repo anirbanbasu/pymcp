@@ -1,6 +1,6 @@
 [project]
 name = "pymcp-template"
-version = "0.1.2"
+version = "0.1.2b2"
 description = "A template (repository) for developing MCP servers in Python"
 readme = "README.md"
 authors = [
@@ -26,6 +26,8 @@ pymcp = "pymcp.server:main"
 packages = ["src/pymcp"]
 
 [tool.uv.sources]
+# This won't work with Smithery, so export a requirements.txt instead.
+# Export using: uv export --no-hashes --format requirements-txt > requirements.txt
 fastmcp = { git = "https://github.com/jlowin/fastmcp.git" }
 
 [build-system]
