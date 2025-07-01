@@ -5,7 +5,7 @@ RUN apk add --no-cache gcc musl-dev linux-headers
 # Set the working directory in the container
 WORKDIR /app
 
-COPY src pyproject.toml README.md LICENSE ./
+COPY src pyproject.toml README.md LICENSE requirements.txt ./
 # Install the latest version from the cloned repository
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
