@@ -248,7 +248,9 @@ async def vonmises_random(
 # 8<-- start of example resources -->8
 
 
-@app.resource(uri="data://logo", tags=["logo", "png", "example"])
+@app.resource(
+    uri="data://logo", mime_type="application/json", tags=["logo", "png", "example"]
+)
 async def resource_logo(ctx: Context) -> Base64EncodedBinaryDataResponse:
     """
     Get the base64 encoded PNG logo of PyMCP.
