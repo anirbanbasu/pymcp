@@ -204,15 +204,15 @@ async def vonmises_random(
     mu: Annotated[
         float,
         Field(
-            description="The mean angle, expressed in radians between 0 and 2*pi",
+            description="The mean angle mu (μ), expressed in radians between 0 and 2π",
             ge=0,
             le=2 * math.pi,
         ),
     ],
-) -> str:
+) -> float:
     """
     Generate a random number from the von Mises distribution.
-    This is an example of a tool that uses elicitation to obtain a required parameter.
+    This is an example of a tool that uses elicitation to obtain the required parameter kappa (κ).
     """
     await ctx.info(
         "Requesting the user for the value of kappa for von Mises distribution."
@@ -240,7 +240,7 @@ async def vonmises_random(
                 "User cancelled the operation. The random number will NOT be generated."
             )
             return None
-    return str(random.vonmisesvariate(mu=mu, kappa=kappa))
+    return random.vonmisesvariate(mu=mu, kappa=kappa)
 
 
 # 8<-- end of example tools -->8
@@ -249,7 +249,7 @@ async def vonmises_random(
 
 
 @app.resource(uri="data://logo", tags=["logo", "png", "example"])
-async def resource_logo(ctx: Context) -> str:
+async def resource_logo(ctx: Context) -> Base64EncodedBinaryDataResponse:
     """
     Get the base64 encoded PNG logo of PyMCP.
     """
@@ -335,7 +335,7 @@ async def resource_unicode_modulo10(
 @app.prompt(
     tags=["example", "code-generation"],
 )
-async def code_prompt(ctx: Context, task: str) -> str:
+async def code_prompt(ctx: Context, task: str) -> PromptMessage:
     """
     Get a prompt to write a code snippet in Python based on the specified task.
     """

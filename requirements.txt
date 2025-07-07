@@ -39,7 +39,7 @@ email-validator==2.2.0
     # via pydantic
 exceptiongroup==1.3.0
     # via fastmcp
-fastmcp @ git+https://github.com/jlowin/fastmcp.git@cdb77913466e4f205d92bd5473104501691d694f
+fastmcp @ git+https://github.com/jlowin/fastmcp.git@cbb8a0d1109534d259db1ffcae417ba8ccfe3a46
     # via pymcp-template
 filelock==3.18.0
     # via virtualenv
@@ -117,13 +117,13 @@ shellingham==1.5.4
     # via typer
 sniffio==1.3.1
     # via anyio
-sse-starlette==2.3.6
+sse-starlette==2.4.1
     # via mcp
 starlette==0.47.1
     # via mcp
 typer==0.16.0
     # via fastmcp
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   anyio
     #   exceptiongroup

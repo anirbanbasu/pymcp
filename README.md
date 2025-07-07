@@ -39,7 +39,7 @@ The following components are available on this MCP server.
     - `text`: _`string`_: The text to summarise.
   - Output(s)
     - `TextContent` with the summary of `text` in pirate speak.
-5. **`vonmises_random`** (_requires FastMCP >=2.10.0, which has not been released yet!_)
+5. **`vonmises_random`**
   - Generates a random number from the [von Mises distribution](https://reference.wolfram.com/language/ref/VonMisesDistribution.html). _This tool uses client elicitation to obtain the parameter kappa ($\kappa$). Hence, an elicitation handler must exist on the client-side._
   - Input(s)
     - `mu`: _`float`_: The parameter $\mu$ between 0 and $2\pi$.
