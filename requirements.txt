@@ -87,7 +87,7 @@ pydantic==2.11.7
     #   mcp
     #   openapi-pydantic
     #   pydantic-settings
-pydantic-core==2.33.2
+pydantic-core==2.35.2
     # via pydantic
 pydantic-settings==2.10.1
     # via mcp
