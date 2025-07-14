@@ -273,8 +273,8 @@ wheels = [
 
 [[package]]
 name = "fastmcp"
-version = "2.10.3"
-source = { git = "https://github.com/jlowin/fastmcp.git#09fae7541e9993a00a6c1742b4ef7f728d0d6dac" }
+version = "2.10.6.dev10+7ce0a59"
+source = { git = "https://github.com/jlowin/fastmcp.git#7ce0a59ea6959a73a46722e3e9884f7f13327072" }
 dependencies = [
     { name = "authlib" },
     { name = "cyclopts" },
