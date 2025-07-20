@@ -16,7 +16,7 @@ attrs==25.3.0
     #   referencing
 authlib==1.6.0
     # via fastmcp
-certifi==2025.7.9
+certifi==2025.7.14
     # via
     #   httpcore
     #   httpx
@@ -30,9 +30,9 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via click
 cryptography==45.0.5
     # via authlib
-cyclopts==3.22.1
+cyclopts==3.22.2
     # via fastmcp
-distlib==0.3.9
+distlib==0.4.0
     # via virtualenv
 dnspython==2.7.0
     # via email-validator
@@ -44,7 +44,7 @@ email-validator==2.2.0
     # via pydantic
 exceptiongroup==1.3.0
     # via fastmcp
-fastmcp @ git+https://github.com/jlowin/fastmcp.git@09fae7541e9993a00a6c1742b4ef7f728d0d6dac
+fastmcp @ git+https://github.com/jlowin/fastmcp.git@1b953820b3c2948e2542dc978c11593e0c23ab97
     # via pymcp-template
 filelock==3.18.0
     # via virtualenv
@@ -67,13 +67,13 @@ idna==3.10
     #   anyio
     #   email-validator
     #   httpx
-jsonschema==4.24.0
+jsonschema==4.25.0
     # via mcp
 jsonschema-specifications==2025.4.1
     # via jsonschema
 markdown-it-py==3.0.0
     # via rich
-mcp==1.10.1
+mcp==1.12.0
     # via fastmcp
 mdurl==0.1.2
     # via markdown-it-py
@@ -105,6 +105,8 @@ python-dotenv==1.1.1
     #   fastmcp
     #   pydantic-settings
 python-multipart==0.0.20
+    # via mcp
+pywin32==311 ; sys_platform == 'win32'
     # via mcp
 pyyaml==6.0.2
     # via pre-commit
