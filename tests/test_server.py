@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime
 import math
 import random
+import json
 import re
 import string
 import uuid
@@ -17,6 +18,7 @@ from pymcp.server import (
     Base64EncodedBinaryDataResponse,
     code_prompt,
     generate_password,
+    text_web_search,
     greet,
     package_version,
     permutations,
@@ -315,6 +317,42 @@ class TestMCPServer:
         )
         assert len(result.text) == password_length, (
             f"Expected a random password of length {password_length}. Obtained a password of length {len(result.text)}."
+        )
+
+    def test_text_web_search(self, mcp_client: Client):
+        f"""
+        Test to call the {text_web_search.name} tool on the MCP server.
+        """
+        results = asyncio.run(
+            self.call_tool(
+                text_web_search.name,
+                mcp_client,
+                query="Python programming language",
+                max_results=1,
+            )
+        )
+        assert hasattr(results, "content"), (
+            "Expected the results to have a 'content' attribute."
+        )
+        assert len(results.content) == 1, (
+            f"Expected one result for the {text_web_search.name} tool."
+        )
+        result = results.content[0]
+        assert hasattr(result, "text"), (
+            "Expected the result to have a 'text' attribute containing the response."
+        )
+        result_json = json.loads(result.text)
+        assert isinstance(result_json, list), (
+            "Expected the response JSON object to be a list."
+        )
+        assert len(result_json) == 1, (
+            "Expected the response JSON object to contain exactly one search result."
+        )
+        assert (
+            result_json[0]["href"]
+            == "https://en.wikipedia.org/wiki/Python_(programming_language)"
+        ), (
+            "Expected the response JSON object HREF to contain a link to the Wikipedia entry for the Python programming language."
         )
 
     def test_tool_permutations(self, mcp_client: Client):

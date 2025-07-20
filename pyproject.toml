@@ -16,6 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+    "ddgs>=9.3.1",
     "fastmcp>=2.9.2",
 ]
 

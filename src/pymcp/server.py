@@ -7,6 +7,7 @@ import secrets
 import math
 from typing import Annotated, Optional
 from fastmcp import FastMCP, Context
+from ddgs import DDGS
 from fastmcp.prompts.prompt import PromptMessage, TextContent
 from mcp import McpError
 from mcp.types import (
@@ -135,6 +136,53 @@ async def generate_password(
                 f"Re-generating since the generated password did not meet complexity requirements: {password}"
             )
     return password
+
+
+@app.tool(
+    tags=["meta-search", "text-search", "searchexample"],
+)
+async def text_web_search(
+    ctx: Context,
+    query: Annotated[
+        str,
+        Field(
+            ...,
+            description="The search query to fetch results for. It should be a non-empty string.",
+        ),
+    ],
+    region: Annotated[
+        Optional[str],
+        Field(default="us-en", description="Optional region to search in."),
+    ] = "us-en",
+    max_results: Annotated[
+        Optional[int],
+        Field(
+            default=10,
+            ge=1,
+            le=100,
+            description="The maximum number of results to return. Default is 10, maximum is 100.",
+        ),
+    ] = 10,
+    pages: Annotated[
+        Optional[int],
+        Field(
+            default=1,
+            ge=1,
+            le=10,
+            description="The number of pages to fetch. Default is 1, maximum is 10.",
+        ),
+    ] = 1,
+):
+    """
+    Perform a text web search using the provided query using DDGS.
+    """
+    await ctx.info(f"Performing text web search for query: {query}")
+    results = DDGS().text(
+        query=query, region=region, max_results=max_results, page=pages
+    )
+    if results:
+        await ctx.info(f"Found {len(results)} results for the query.")
+    return results
 
 
 @app.tool(

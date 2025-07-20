@@ -26,20 +26,31 @@ The following components are available on this MCP server.
     - `use_special_chars`: _`boolean`_ (_optional_): A flag to indicate whether the password should include special characters. Default value is `False`.
   - Output(s)
     - `TextContent` with the generated password.
-3. **`permutations`**
+3. **`text_web_search`**
+  - Searches the web with a text query using the [Dux Distributed Global Search (DDGS)](https://github.com/deedy5/ddgs).
+  - Input(s)
+    - `query`: _`string`_: The search query to fetch results for. It should be a non-empty string.
+    - `region`: _`string`_ (_optional_): Two letter country code followed by a hyphen and then by two letter language code, e.g., `uk-en`. Default value is `us-en`.
+    - `max_results`: _`integer`_ (_optional_): Optional maximum number of results to be fetched. Default value is 10.
+    - `pages`: _`integer`_ (_optional_): Optional number of pages to spread the results over. Default value is 1.
+  - Environment variable(s)
+    - `DDGS_PROXY`: _`string`_ (_optional_): Optional proxy server to use for egress web search requests.
+  - Output(s)
+    - `TextContent` with a list of dictionaries with search results.
+4. **`permutations`**
   - Calculates the number of ways to choose $k$ items from $n$ items without repetition and with order. If $k$ is not provided, it defaults to $n$.
   - Input(s)
     - `n`: _`integer`_: The number of items to choose from. This should be a non-zero, positive integer.
     - `k`: _`integer`_ (_optional_): The number of items to choose. Default value is the value of `n`.
   - Output(s)
     - `TextContent` with number of ways to choose $k$ items from $n$, essentially ${}^{n}P_{k}$.
-4. **`pirate_summarise`**
+5. **`pirate_summarise`**
   - Summarises the given text in a pirate style. _This tool uses LLM client sampling. Hence, a sampling handler must exist on the client-side._
   - Input(s)
     - `text`: _`string`_: The text to summarise.
   - Output(s)
     - `TextContent` with the summary of `text` in pirate speak.
-5. **`vonmises_random`**
+6. **`vonmises_random`**
   - Generates a random number from the [von Mises distribution](https://reference.wolfram.com/language/ref/VonMisesDistribution.html). _This tool uses client elicitation to obtain the parameter kappa ($\kappa$). Hence, an elicitation handler must exist on the client-side._
   - Input(s)
     - `mu`: _`float`_: The parameter $\mu$ between 0 and $2\pi$.
