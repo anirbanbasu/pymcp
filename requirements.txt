@@ -34,7 +34,7 @@ cryptography==45.0.5
     # via authlib
 cyclopts==3.22.2
     # via fastmcp
-ddgs==9.3.1
+ddgs==9.4.0
     # via pymcp-template
 distlib==0.4.0
     # via virtualenv

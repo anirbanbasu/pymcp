@@ -201,7 +201,7 @@ version = "3.22.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
-    { name = "docstring-parser", marker = "python_full_version < '4.0'" },
+    { name = "docstring-parser", marker = "python_full_version < '4'" },
     { name = "rich" },
     { name = "rich-rst" },
 ]
@@ -212,16 +212,16 @@ wheels = [
 
 [[package]]
 name = "ddgs"
-version = "9.3.1"
+version = "9.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "lxml" },
     { name = "primp" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/4b/f607af852264adec9b1df27deea2d63584f4902b2102562575123a17b950/ddgs-9.3.1.tar.gz", hash = "sha256:5ce50ff00579439812ca1983dba4600a878143409ed9ffd8cd097adb0a31777c", size = 28401, upload-time = "2025-07-18T09:40:00.451Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/c1/26e3308381d517bc0693d0a8b38e11c7f3d1546eeb326aec8c4527e0cf03/ddgs-9.4.0.tar.gz", hash = "sha256:5a607983b44357705ca53a031bca95fb35c193c85a2de3074255b189d58293c7", size = 30008, upload-time = "2025-07-20T13:27:15.314Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/a2/9e875e1851eb8c37960f4be1c9a4e669c08c184b1ae4fb63d97fc8a2a549/ddgs-9.3.1-py3-none-any.whl", hash = "sha256:4ea4e23a44c0b9e37743d5fdb9dcda208dd0debb2e4d096bb9f6a7acbfefc511", size = 33248, upload-time = "2025-07-18T09:39:59.484Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/83/b2ef3e7600e180edf82d8c47fe096a77a38538ac46e1689372848553bebf/ddgs-9.4.0-py3-none-any.whl", hash = "sha256:2e0a93108df9b5883f9ca022984c1cb7e8da9a2772e92803f0e1da9724de081d", size = 34348, upload-time = "2025-07-20T13:27:14.073Z" },
 ]
 
 [[package]]
