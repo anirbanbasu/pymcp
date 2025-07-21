@@ -154,5 +154,5 @@ typing-inspection==0.4.1
     #   pydantic-settings
 uvicorn==0.35.0 ; sys_platform != 'emscripten'
     # via mcp
-virtualenv==20.31.2
+virtualenv==20.32.0
     # via pre-commit
