@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -258,7 +258,7 @@ version = "3.22.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
-    { name = "docstring-parser", marker = "python_full_version < '4.0'" },
+    { name = "docstring-parser", marker = "python_full_version < '4'" },
     { name = "rich" },
     { name = "rich-rst" },
 ]
@@ -344,8 +344,8 @@ wheels = [
 
 [[package]]
 name = "fastmcp"
-version = "2.10.7.dev46+3fc96c6"
-source = { git = "https://github.com/jlowin/fastmcp.git#3fc96c6fd5324f757430a0fef4a7f1cef0cb1c56" }
+version = "2.11.1"
+source = { git = "https://github.com/jlowin/fastmcp.git#e62d2dd3c229bea7695c8650eb9885e4fa14f10f" }
 dependencies = [
     { name = "authlib" },
     { name = "cyclopts" },
