@@ -99,7 +99,7 @@ markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
     # via werkzeug
-mcp==1.12.2
+mcp==1.12.4
     # via fastmcp
 mdurl==0.1.2
     # via markdown-it-py
