@@ -4,12 +4,6 @@ build:
   dockerfile: "smithery.dockerfile"
   dockerBuildPath: "."
 startCommand:
-  type: "stdio"  # Changed from http
-  configSchema:
-    # JSON Schema defining the configuration options for the MCP.
-    {}
-  commandFunction:
-    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
-    |-
-    (config) => ({ command: 'python3', args: ['-m', 'pymcp.server'] })
+  type: "http"  # Changed from stdio
+  configSchema: {}
   exampleConfig: {}
