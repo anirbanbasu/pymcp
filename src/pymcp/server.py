@@ -1,4 +1,5 @@
 import base64
+import os
 import random
 import sys
 import string
@@ -404,8 +405,8 @@ async def code_prompt(ctx: Context, task: str) -> PromptMessage:
 
 def main():
     try:
-        # Run the FastMCP server using stdio. Other transports can be configured as needed.
-        app.run()
+        # Run the FastMCP server using stdio by default. Other transports can be configured as needed using the MCP_SERVER_TRANSPORT environment variable.
+        app.run(transport=os.getenv("MCP_SERVER_TRANSPORT", None))
     except KeyboardInterrupt:
         sys.exit(0)
     finally:

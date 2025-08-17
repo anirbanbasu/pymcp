@@ -102,13 +102,11 @@ uv sync --no-dev
 ```
 
 # Standalone usage
-PyMCP can be started standalone as a MCP server with `stdio` transport by running the following. However, you are unlikely to use it this way.
+PyMCP can be started standalone as a MCP server with `stdio` transport by running the following. Alternatively, it can be started using `streamable-http` or `sse` transports by specifying the transport type using the `MCP_SERVER_TRANSPORT` environment variable.
 
 ```bash
 uv run pymcp
 ```
-
-Furthermore, being a template repository, the code deliberately does not implement `streamable-http` and `sse` transports.
 
 # Test with the MCP Inspector
 
