@@ -1,5 +1,5 @@
 # Check reference at https://smithery.ai/docs/build/project-config/smithery-yaml
-# runtime: "container"
+runtime: "container"
 build:
   dockerfile: "smithery.dockerfile"
   dockerBuildPath: "."

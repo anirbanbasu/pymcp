@@ -35,11 +35,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 ENV FASTMCP_HOST="0.0.0.0"
 ENV MCP_SERVER_TRANSPORT="streamable-http"
-ENV FASTMCP_PORT=8080
+ENV FASTMCP_PORT=${PORT:-8081}
 
 RUN echo "MCP_SERVER_TRANSPORT=${MCP_SERVER_TRANSPORT}" > /app/.env && echo "FASTMCP_HOST=${FASTMCP_HOST}" >> /app/.env && echo "FASTMCP_PORT=${FASTMCP_PORT}" >> /app/.env
-
-# Set the correct environment variables as required by Smithery proxy
-EXPOSE ${FASTMCP_PORT}
 
 ENTRYPOINT ["python3", "-m", "pymcp.server"]
