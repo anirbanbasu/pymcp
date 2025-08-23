@@ -147,6 +147,7 @@ Instead of having `pymcp` as the last item in the list of `args`, you may need t
 
 The currently available remotely hosted options are as follows.
 
+ - FastMCP Cloud: https://pymcp-template.fastmcp.app/mcp
  - Glama.AI: https://glama.ai/mcp/servers/@anirbanbasu/pymcp
  - Smithery.AI: https://smithery.ai/server/@anirbanbasu/pymcp
 
