@@ -26,10 +26,14 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM python:3.12.5-slim-bookworm
 
+RUN useradd app
+
 WORKDIR /app
 
 COPY --from=uv --chown=app:app /app/.venv /app/.venv
+RUN chown -R app:app /app
 
+USER app
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
