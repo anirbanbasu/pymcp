@@ -29,21 +29,23 @@ class Base64EncodedBinaryDataResponse(BaseModel):
 
     @model_validator(mode="after")
     def check_data_hash(self) -> "Base64EncodedBinaryDataResponse":
-        assert (
+        if (
             self.hash_algorithm
-            in Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS
-        ), (
-            f"Unsupported hash algorithm: {self.hash_algorithm}. Available algorithms: {Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS_STR}"
-        )
+            not in Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS
+        ):
+            raise ValueError(
+                f"Unsupported hash algorithm: {self.hash_algorithm}. Available algorithms: {Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS_STR}"
+            )
         hasher = hashlib.new(self.hash_algorithm)
         hasher.update(self.data)
-        # Make sure that for variable length hash algorithms, such as SHAKE128 and SHAKE256, we get a fixed length hash for testing
         computed_hash = (
             hasher.hexdigest()
             if not self.hash_algorithm.startswith("shake")
+            # Make sure that for variable length hash algorithms, such as SHAKE128 and SHAKE256, we get a fixed length hash for testing
             else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # type: ignore[call-arg]
         )
-        assert computed_hash == self.hash, (
-            f"Hash mismatch: expected {self.hash}, got {computed_hash}"
-        )
+        if computed_hash != self.hash:
+            raise ValueError(
+                f"Hash mismatch: provided hash {self.hash} does not match computed hash {computed_hash}."
+            )
         return self
