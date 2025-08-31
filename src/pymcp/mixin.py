@@ -1,6 +1,7 @@
 from typing import Any, ClassVar, Dict, List
 
 from fastmcp import FastMCP
+import copy
 
 
 class MCPMixin:
@@ -31,25 +32,26 @@ class MCPMixin:
         # Register tools
         for tool in self.tools:
             assert "fn" in tool, "Tool metadata must include the 'fn' key."
-            fn_name = tool.pop("fn")
+            tool_copy = copy.deepcopy(tool)
+            fn_name = tool_copy.pop("fn")
             fn = getattr(self, fn_name)
-            mcp.tool(fn, **tool)  # pass remaining metadata as kwargs
-
+            mcp.tool(fn, **tool_copy)  # pass remaining metadata as kwargs
         # Register resources
         for res in self.resources:
             assert "fn" in res and "uri" in res, (
                 "Resource metadata must include 'fn' and 'uri' keys."
             )
-            fn_name = res.pop("fn")
-            uri = res.pop("uri")
+            res_copy = copy.deepcopy(res)
+            fn_name = res_copy.pop("fn")
+            uri = res_copy.pop("uri")
             fn = getattr(self, fn_name)
-            mcp.resource(uri, **res)(fn)
-
+            mcp.resource(uri, **res_copy)(fn)
         # Register prompts
         for pr in self.prompts:
             assert "fn" in pr, "Prompt metadata must include the 'fn' key."
-            fn_name = pr.pop("fn")
+            pr_copy = copy.deepcopy(pr)
+            fn_name = pr_copy.pop("fn")
             fn = getattr(self, fn_name)
-            mcp.prompt(fn, **pr)
+            mcp.prompt(fn, **pr_copy)
 
         return mcp
