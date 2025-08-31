@@ -270,9 +270,9 @@ class PyMCP(MCPMixin):
             response_type=float,
         )
         kappa: float = 1.0  # Default value
-        match type(response):
-            case AcceptedElicitation.__class__:
-                kappa = response.data
+        match response:
+            case AcceptedElicitation(data=kappa):  # type: ignore[misc]
+                await ctx.warning(f"Received kappa: {kappa}")
                 if kappa < 0:
                     raise McpError(
                         error=ErrorData(
@@ -280,11 +280,11 @@ class PyMCP(MCPMixin):
                             message="kappa (κ) must be a positive number.",
                         )
                     )
-            case DeclinedElicitation.__class__:
+            case DeclinedElicitation():  # type: ignore[misc]
                 await ctx.warning(
                     "User declined to provide kappa (κ). Using default value of 1.0."
                 )
-            case CancelledElicitation.__class__:
+            case CancelledElicitation():  # type: ignore[misc]
                 await ctx.warning(
                     "User cancelled the operation. The random number will NOT be generated."
                 )
@@ -385,7 +385,7 @@ class PyMCP(MCPMixin):
         )
 
 
-def main():
+def main():  # pragma: no cover
     try:
         app = FastMCP(
             name=PACKAGE_NAME,
@@ -407,5 +407,5 @@ def main():
         pass
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

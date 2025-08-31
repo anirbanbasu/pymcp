@@ -26,7 +26,12 @@ class Base64EncodedBinaryDataResponse(BaseModel):
         )
         hasher = hashlib.new(self.hash_algorithm)
         hasher.update(self.data)
-        computed_hash = hasher.hexdigest()
+        # Make sure that for variable length hash algorithms, such as SHAKE128 and SHAKE256, we get a fixed length hash for testing
+        computed_hash = (
+            hasher.hexdigest()
+            if not self.hash_algorithm.startswith("shake")
+            else hasher.hexdigest(32)  # type: ignore[call-arg]
+        )
         assert computed_hash == self.hash, (
             f"Hash mismatch: expected {self.hash}, got {computed_hash}"
         )

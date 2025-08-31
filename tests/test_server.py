@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+import logging
 import math
 import random
 import json
@@ -10,8 +11,9 @@ from fastmcp.exceptions import ToolError
 from fastmcp import Client, FastMCP
 import pytest
 from fastmcp.prompts.prompt import TextContent
-from fastmcp.client.sampling import SamplingMessage, SamplingParams, RequestContext
-from fastmcp.client.elicitation import ElicitResult
+from mcp.shared.context import RequestContext
+from fastmcp.client.sampling import SamplingMessage, SamplingParams
+from fastmcp.client.elicitation import ElicitRequestParams, ElicitResult
 
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
 from pymcp.server import PyMCP
@@ -20,6 +22,8 @@ from pymcp.server import PyMCP
 from pymcp.server import (
     package_version,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TestMCPServer:
@@ -31,14 +35,20 @@ class TestMCPServer:
         context: RequestContext,
     ) -> str:
         # Since we do not have a language model at our disposal, ignore all the paramers and generate a unique ID.
+        logger.info(f"Received LLM sampling request: {messages[-1].content.text}")
         return str(uuid.uuid4())
 
     @classmethod
     async def random_elicitation_handler(
-        cls, message: str, response_type: type, params, context
+        cls,
+        message: str,
+        response_type: type,
+        params: ElicitRequestParams,
+        context: RequestContext,
     ) -> ElicitResult:
-        # Since we are in the midst of a test setup, ignore all the paramers and generate a response.
-        return response_type(value=random.uniform(0.0, 1.0))
+        # Since we are in the midst of a test, ignore all the paramers and generate a random response.
+        logger.info(f"Received elicitation request: {message}")
+        return response_type(value=random.uniform(0.0, 2.0))
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
@@ -266,12 +276,10 @@ class TestMCPServer:
         )
 
         # Try without specifying the name
-        # name_to_be_greeted = None
         results = asyncio.run(
             self.call_tool(
                 tool_name,
                 mcp_client,
-                # name=name_to_be_greeted,
             )
         )
         assert hasattr(results, "content"), (
