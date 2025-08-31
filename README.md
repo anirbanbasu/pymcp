@@ -30,7 +30,7 @@ The following components are available on this MCP server.
   - Searches the web with a text query using the [Dux Distributed Global Search (DDGS)](https://github.com/deedy5/ddgs).
   - Input(s)
     - `query`: _`string`_: The search query to fetch results for. It should be a non-empty string.
-    - `region`: _`string`_ (_optional_): Two letter country code followed by a hyphen and then by two letter language code, e.g., `uk-en`. Default value is `us-en`.
+    - `region`: _`string`_ (_optional_): Two letter country code followed by a hyphen and then by two letter language code, e.g., `uk-en` or `us-en`. Default value is `uk-en`.
     - `max_results`: _`integer`_ (_optional_): Optional maximum number of results to be fetched. Default value is 10.
     - `pages`: _`integer`_ (_optional_): Optional number of pages to spread the results over. Default value is 1.
   - Environment variable(s)
@@ -169,14 +169,18 @@ uv run coverage report
 This will generate something like the following output.
 
 ```bash
-Name                    Stmts   Miss  Cover
--------------------------------------------
-src/pymcp/__init__.py       0      0   100%
-src/pymcp/server.py        98      8    92%
-tests/__init__.py           0      0   100%
-tests/test_server.py      135      0   100%
--------------------------------------------
-TOTAL                     233      8    97%
+Name                                      Stmts   Miss  Cover
+-------------------------------------------------------------
+src/pymcp/__init__.py                         0      0   100%
+src/pymcp/data_model/__init__.py              0      0   100%
+src/pymcp/data_model/response_models.py      15      0   100%
+src/pymcp/mixin.py                           24      0   100%
+src/pymcp/server.py                         108      6    94%
+tests/__init__.py                             0      0   100%
+tests/test_data_models.py                    35      0   100%
+tests/test_server.py                        197      0   100%
+-------------------------------------------------------------
+TOTAL                                       379      6    98%
 ```
 
 # Contributing
