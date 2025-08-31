@@ -22,7 +22,7 @@ class Base64EncodedBinaryDataResponse(BaseModel):
         description="A hexadecimal encoded of a hash of the binary data.",
     )
     hash_algorithm: str = Field(
-        description=f"The algorithm used to compute the hash, e.g., 'sha3_512'. Available algorithms: {', '.join(list(hashlib.algorithms_available)[:-1])}, and {list(hashlib.algorithms_available)[-1]}",
+        description=f"The algorithm used to compute the hash, e.g., 'sha3_512'. Available algorithms: {AVAILABLE_HASH_ALGORITHMS_STR}",
     )
 
     @model_validator(mode="after")
