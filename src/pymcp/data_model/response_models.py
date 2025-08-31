@@ -10,14 +10,15 @@ class Base64EncodedBinaryDataResponse(BaseModel):
     """
 
     AVAILABLE_HASH_ALGORITHMS: ClassVar[List[str]] = list(hashlib.algorithms_available)
-    if not AVAILABLE_HASH_ALGORITHMS:
-        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = ""
-    elif len(AVAILABLE_HASH_ALGORITHMS) == 1:
-        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = AVAILABLE_HASH_ALGORITHMS[0]
-    elif len(AVAILABLE_HASH_ALGORITHMS) == 2:
-        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = " and ".join(AVAILABLE_HASH_ALGORITHMS)
+    AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = ""
+    if not AVAILABLE_HASH_ALGORITHMS:  # pragma: no cover
+        pass
+    elif len(AVAILABLE_HASH_ALGORITHMS) == 1:  # pragma: no cover
+        AVAILABLE_HASH_ALGORITHMS_STR = AVAILABLE_HASH_ALGORITHMS[0]
+    elif len(AVAILABLE_HASH_ALGORITHMS) == 2:  # pragma: no cover
+        AVAILABLE_HASH_ALGORITHMS_STR = " and ".join(AVAILABLE_HASH_ALGORITHMS)
     else:
-        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = (
+        AVAILABLE_HASH_ALGORITHMS_STR = (
             ", ".join(AVAILABLE_HASH_ALGORITHMS[:-1])
             + f", and {AVAILABLE_HASH_ALGORITHMS[-1]}"
         )

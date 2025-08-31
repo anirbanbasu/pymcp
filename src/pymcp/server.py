@@ -385,21 +385,25 @@ class PyMCP(MCPMixin):
         )
 
 
+def app() -> FastMCP:  # pragma: no cover
+    app = FastMCP(
+        name=PACKAGE_NAME,
+        version=package_version,
+        instructions="A simple MCP server for testing purposes.",
+        on_duplicate_prompts="error",
+        on_duplicate_resources="error",
+        on_duplicate_tools="error",
+    )
+    mcp_obj = PyMCP()
+    app_with_features = mcp_obj.register_features(app)
+    return app_with_features
+
+
 def main():  # pragma: no cover
     try:
-        app = FastMCP(
-            name=PACKAGE_NAME,
-            version=package_version,
-            instructions="A simple MCP server for testing purposes.",
-            on_duplicate_prompts="error",
-            on_duplicate_resources="error",
-            on_duplicate_tools="error",
-        )
-        mcp_obj = PyMCP()
-        app_with_features = mcp_obj.register_features(app)
         # Run the FastMCP server using stdio by default.
         # Other transports can be configured as needed using the MCP_SERVER_TRANSPORT environment variable.
-        app_with_features.run(transport=env.str("MCP_SERVER_TRANSPORT", default=None))
+        app().run(transport=env.str("MCP_SERVER_TRANSPORT", default=None))
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
