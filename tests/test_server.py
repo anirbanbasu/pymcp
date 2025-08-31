@@ -275,7 +275,7 @@ class TestMCPServer:
             f"Expected the date-time to be a valid datetime object in the format %Y-%m-%dT%H:%M:%S.%f%z but obtained {datetime_str}"
         )
 
-        # Try without specifying the name
+        # Try by explicitly passing name=None
         results = asyncio.run(
             self.call_tool(
                 tool_name,
