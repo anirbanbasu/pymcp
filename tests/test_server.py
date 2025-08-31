@@ -280,6 +280,7 @@ class TestMCPServer:
             self.call_tool(
                 tool_name,
                 mcp_client,
+                name=None,
             )
         )
         assert hasattr(results, "content"), (
