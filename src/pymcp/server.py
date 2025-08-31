@@ -56,7 +56,7 @@ class PyMCP(MCPMixin):
             "tags": ["math", "permutation", "example"],
             "annotations": {"readOnlyHint": True},
         },
-        {"fn": "pirate_summary", "tags": ["pirate-summary", "llm-samping", "example"]},
+        {"fn": "pirate_summary", "tags": ["pirate-summary", "llm-sampling", "example"]},
         {"fn": "vonmises_random", "tags": ["experimental", "elicitation", "example"]},
     ]
     resources = [
