@@ -169,14 +169,18 @@ uv run coverage report
 This will generate something like the following output.
 
 ```bash
-Name                    Stmts   Miss  Cover
--------------------------------------------
-src/pymcp/__init__.py       0      0   100%
-src/pymcp/server.py        98      8    92%
-tests/__init__.py           0      0   100%
-tests/test_server.py      135      0   100%
--------------------------------------------
-TOTAL                     233      8    97%
+Name                                      Stmts   Miss  Cover
+-------------------------------------------------------------
+src/pymcp/__init__.py                         0      0   100%
+src/pymcp/data_model/__init__.py              0      0   100%
+src/pymcp/data_model/response_models.py      15      0   100%
+src/pymcp/mixin.py                           24      0   100%
+src/pymcp/server.py                         119     15    87%
+tests/__init__.py                             0      0   100%
+tests/test_data_models.py                    30      0   100%
+tests/test_server.py                        192      0   100%
+-------------------------------------------------------------
+TOTAL                                       380     15    96%
 ```
 
 # Contributing

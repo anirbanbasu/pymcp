@@ -32,14 +32,19 @@ repos:
       - id: ruff-format
         args: [--respect-gitignore]
         exclude: ".*uv.lock|.*_static"
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        args: [--config-file=mypy.ini]
   # Inspired by: https://medium.com/@fistralpro/pytest-pre-commit-hook-b492edd0560e
   # Running pytest with uv will slow down the commit process.
-  - repo: local
-    hooks:
-    - id: pytest
-      name: pytest using uv
-      entry: uv run --group test pytest tests/
-      language: system
-      types: [python]
-      pass_filenames: false
-      always_run: true
+  # - repo: local
+  #   hooks:
+  #   - id: pytest
+  #     name: pytest using uv
+  #     entry: uv run --group test pytest tests/
+  #     language: system
+  #     types: [python]
+  #     pass_filenames: false
+  #     always_run: true

@@ -9,14 +9,15 @@ authors = [
 keywords = ["python3", "example", "server", "model-context-protocol-server", "mcp-server"]
 requires-python = ">=3.12"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "ddgs>=9.3.1",
+    "ddgs>=9.5.4",
+    "environs>=14.3.0",
     "fastmcp>=2.9.2",
 ]
 
@@ -27,8 +28,6 @@ pymcp = "pymcp.server:main"
 packages = ["src/pymcp"]
 
 [tool.uv.sources]
-# This won't work with Smithery, so export a requirements.txt instead.
-# Export using: uv export --no-hashes --format requirements-txt > requirements.txt
 fastmcp = { git = "https://github.com/jlowin/fastmcp.git" }
 
 [build-system]
