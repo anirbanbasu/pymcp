@@ -35,7 +35,7 @@ class MCPMixin:
             tool_copy = copy.deepcopy(tool)
             fn_name = tool_copy.pop("fn")
             fn = getattr(self, fn_name)
-            mcp.tool(fn, **tool_copy)  # pass remaining metadata as kwargs
+            mcp.tool(**tool_copy)(fn)  # pass remaining metadata as kwargs
         # Register resources
         for res in self.resources:
             assert "fn" in res and "uri" in res, (
@@ -52,6 +52,6 @@ class MCPMixin:
             pr_copy = copy.deepcopy(pr)
             fn_name = pr_copy.pop("fn")
             fn = getattr(self, fn_name)
-            mcp.prompt(fn, **pr_copy)
+            mcp.prompt(**pr_copy)(fn)
 
         return mcp
