@@ -54,7 +54,7 @@ class TestMCPServer:
     @pytest.fixture(scope="class", autouse=True)
     def mcp_server(cls):
         """
-        Fixture to register features in a MCP server.
+        Fixture to register features in an MCP server.
         """
         server = FastMCP()
         mcp_obj = PyMCP()
