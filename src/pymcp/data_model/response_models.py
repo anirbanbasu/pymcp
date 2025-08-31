@@ -1,3 +1,4 @@
+from typing import ClassVar, List
 from pydantic import Base64Bytes, BaseModel, Field, model_validator
 
 import hashlib
@@ -7,6 +8,12 @@ class Base64EncodedBinaryDataResponse(BaseModel):
     """
     A base64 encoded binary data for MCP response along with its cryptographic hash.
     """
+
+    AVAILABLE_HASH_ALGORITHMS: ClassVar[List[str]] = list(hashlib.algorithms_available)
+    AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = (
+        ", ".join(AVAILABLE_HASH_ALGORITHMS[:-1])
+        + f", and {AVAILABLE_HASH_ALGORITHMS[-1]}"
+    )
 
     data: Base64Bytes = Field(
         description="Base64 encoded binary data.",
@@ -20,9 +27,11 @@ class Base64EncodedBinaryDataResponse(BaseModel):
 
     @model_validator(mode="after")
     def check_data_hash(self) -> "Base64EncodedBinaryDataResponse":
-        list_of_hash_algorithms = list(hashlib.algorithms_available)
-        assert self.hash_algorithm in list_of_hash_algorithms, (
-            f"Unsupported hash algorithm: {self.hash_algorithm}. Available algorithms: {', '.join(list_of_hash_algorithms[:-1])}, and {list_of_hash_algorithms[-1]}"
+        assert (
+            self.hash_algorithm
+            in Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS
+        ), (
+            f"Unsupported hash algorithm: {self.hash_algorithm}. Available algorithms: {Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS_STR}"
         )
         hasher = hashlib.new(self.hash_algorithm)
         hasher.update(self.data)
