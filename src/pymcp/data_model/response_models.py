@@ -14,6 +14,8 @@ class Base64EncodedBinaryDataResponse(BaseModel):
         ", ".join(AVAILABLE_HASH_ALGORITHMS[:-1])
         + f", and {AVAILABLE_HASH_ALGORITHMS[-1]}"
     )
+    # See https://docs.python.org/3/library/hashlib.html#shake-variable-length-digests
+    SHAKE_DIGEST_LENGTH: ClassVar[int] = 32  # bytes
 
     data: Base64Bytes = Field(
         description="Base64 encoded binary data.",
@@ -39,7 +41,7 @@ class Base64EncodedBinaryDataResponse(BaseModel):
         computed_hash = (
             hasher.hexdigest()
             if not self.hash_algorithm.startswith("shake")
-            else hasher.hexdigest(32)  # type: ignore[call-arg]
+            else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # type: ignore[call-arg]
         )
         assert computed_hash == self.hash, (
             f"Hash mismatch: expected {self.hash}, got {computed_hash}"
