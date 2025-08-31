@@ -163,8 +163,8 @@ class PyMCP(MCPMixin):
         ],
         region: Annotated[
             Optional[str],
-            Field(default="us-en", description="Optional region to search in."),
-        ] = "us-en",
+            Field(default="uk-en", description="Optional region to search in."),
+        ] = "uk-en",
         max_results: Annotated[
             Optional[int],
             Field(

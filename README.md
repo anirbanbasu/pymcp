@@ -30,7 +30,7 @@ The following components are available on this MCP server.
   - Searches the web with a text query using the [Dux Distributed Global Search (DDGS)](https://github.com/deedy5/ddgs).
   - Input(s)
     - `query`: _`string`_: The search query to fetch results for. It should be a non-empty string.
-    - `region`: _`string`_ (_optional_): Two letter country code followed by a hyphen and then by two letter language code, e.g., `uk-en`. Default value is `us-en`.
+    - `region`: _`string`_ (_optional_): Two letter country code followed by a hyphen and then by two letter language code, e.g., `uk-en` or `us-en`. Default value is `uk-en`.
     - `max_results`: _`integer`_ (_optional_): Optional maximum number of results to be fetched. Default value is 10.
     - `pages`: _`integer`_ (_optional_): Optional number of pages to spread the results over. Default value is 1.
   - Environment variable(s)
