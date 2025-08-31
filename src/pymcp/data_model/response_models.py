@@ -10,10 +10,17 @@ class Base64EncodedBinaryDataResponse(BaseModel):
     """
 
     AVAILABLE_HASH_ALGORITHMS: ClassVar[List[str]] = list(hashlib.algorithms_available)
-    AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = (
-        ", ".join(AVAILABLE_HASH_ALGORITHMS[:-1])
-        + f", and {AVAILABLE_HASH_ALGORITHMS[-1]}"
-    )
+    if not AVAILABLE_HASH_ALGORITHMS:
+        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = ""
+    elif len(AVAILABLE_HASH_ALGORITHMS) == 1:
+        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = AVAILABLE_HASH_ALGORITHMS[0]
+    elif len(AVAILABLE_HASH_ALGORITHMS) == 2:
+        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = " and ".join(AVAILABLE_HASH_ALGORITHMS)
+    else:
+        AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = (
+            ", ".join(AVAILABLE_HASH_ALGORITHMS[:-1])
+            + f", and {AVAILABLE_HASH_ALGORITHMS[-1]}"
+        )
     # See https://docs.python.org/3/library/hashlib.html#shake-variable-length-digests
     SHAKE_DIGEST_LENGTH: ClassVar[int] = 32  # bytes
 
