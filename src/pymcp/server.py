@@ -16,7 +16,8 @@ from mcp.types import (
 )
 from importlib.metadata import version
 
-from environs import env
+from pymcp import env
+from marshmallow.validate import OneOf
 from pydantic import Field
 
 from datetime import datetime, timezone
@@ -403,7 +404,13 @@ def main():  # pragma: no cover
     try:
         # Run the FastMCP server using stdio by default.
         # Other transports can be configured as needed using the MCP_SERVER_TRANSPORT environment variable.
-        app().run(transport=env.str("MCP_SERVER_TRANSPORT", default=None))
+        app().run(
+            transport=env.str(
+                name="MCP_SERVER_TRANSPORT",
+                default="stdio",
+                validate=OneOf(["stdio", "streamable-http", "sse"]),
+            )
+        )
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
