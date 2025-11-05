@@ -271,7 +271,7 @@ class PyMCP(MCPMixin):
             response_type=float,
         )
         kappa: float = 1.0  # Default value
-        match response:
+        match response:  # pragma: no cover
             case AcceptedElicitation(data=kappa):  # type: ignore[misc]
                 await ctx.warning(f"Received kappa: {kappa}")
                 if kappa < 0:

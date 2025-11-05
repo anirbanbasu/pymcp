@@ -1,6 +1,7 @@
 import base64
 import logging
 
+from pydantic import ValidationError
 import pytest
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
 import hashlib
@@ -51,3 +52,25 @@ class TestDataModels:
         assert model_instance.data != base64_encoded_data
         assert model_instance.hash == hash_value
         assert model_instance.hash_algorithm == hash_algorithm
+
+    def test_binary_data_response_with_invalid_hash(self):
+        binary_data = b"Hello world, from PyMCP!"
+        base64_encoded_data = base64.b64encode(binary_data)
+        hash_algorithm = "sha3_512"
+        hasher = hashlib.new(hash_algorithm)
+        hasher.update(binary_data)
+        hash_value = hasher.hexdigest()
+
+        with pytest.raises(ValidationError, match="Unsupported hash algorithm"):
+            Base64EncodedBinaryDataResponse(
+                data=base64_encoded_data,
+                hash=hash_value,
+                hash_algorithm=f"{hash_algorithm}_invalid",
+            )
+
+        with pytest.raises(ValidationError, match="Hash mismatch"):
+            Base64EncodedBinaryDataResponse(
+                data=base64_encoded_data,
+                hash=f"{hash_value}_mismatch",
+                hash_algorithm=hash_algorithm,
+            )
