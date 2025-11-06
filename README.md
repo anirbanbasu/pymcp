@@ -171,16 +171,16 @@ This will generate something like the following output.
 ```bash
 Name                                      Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------------
-src/pymcp/__init__.py                         3      0   100%
+src/pymcp/__init__.py                         4      0   100%
 src/pymcp/data_model/__init__.py              0      0   100%
 src/pymcp/data_model/response_models.py      21      0   100%
-src/pymcp/mixin.py                           28      0   100%
-src/pymcp/server.py                          99      0   100%
+src/pymcp/mixin.py                           37      0   100%
+src/pymcp/server.py                         101      0   100%
 tests/__init__.py                             0      0   100%
 tests/test_data_models.py                    47      0   100%
-tests/test_server.py                        197      0   100%
+tests/test_server.py                        200      0   100%
 -----------------------------------------------------------------------
-TOTAL                                       395      0   100%
+TOTAL                                       410      0   100%
 ```
 
 # Contributing
