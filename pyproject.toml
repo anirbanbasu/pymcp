@@ -1,8 +1,10 @@
 [project]
 name = "pymcp-template"
-version = "0.1.8"
-description = "A template (repository) for developing MCP servers in Python"
+version = "0.2.0"
+description = "A template for developing MCP servers in Python"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 authors = [
     { name = "Anirban Basu", email = "anirbanbasu@users.noreply.github.com" }
 ]

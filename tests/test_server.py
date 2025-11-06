@@ -3,7 +3,6 @@ from datetime import datetime
 import logging
 import math
 import random
-import json
 import re
 import string
 import uuid
@@ -252,14 +251,17 @@ class TestMCPServer:
         assert len(results.content) == 1, (
             f"Expected one result for the {tool_name} tool."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
+        )
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
         )
         pattern = r"Hello(,?) (.+)! Welcome to the pymcp-template (\d+\.\d+\.\d+(\.?[a-zA-Z]+\.?\d+)?) server! The current date time in UTC is ([\d\-T:.+]+)."
-        match = re.match(pattern, result.text)
+        result = results.structured_content["result"]
+        match = re.match(pattern, result)
         assert match, (
-            f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result.text}"
+            f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result}"
         )
         name = match.group(2)  # Extracted name
         assert name == name_to_be_greeted if name_to_be_greeted else "World", (
@@ -289,13 +291,16 @@ class TestMCPServer:
         assert len(results.content) == 1, (
             f"Expected one result for the {tool_name} tool."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
         )
-        match = re.match(pattern, result.text)
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
+        )
+        result = results.structured_content["result"]
+        match = re.match(pattern, result)
         assert match, (
-            f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result.text}"
+            f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result}"
         )
         name = match.group(2)  # Extracted name
         assert name == "World", (
@@ -331,17 +336,20 @@ class TestMCPServer:
         assert len(results.content) == 1, (
             f"Expected one result for the {tool_name} tool."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
         )
-        contains_alphanum = any(char.isalnum() for char in result.text)
-        contains_punctuation = any(char in string.punctuation for char in result.text)
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
+        )
+        result = results.structured_content["result"]
+        contains_alphanum = any(char.isalnum() for char in result)
+        contains_punctuation = any(char in string.punctuation for char in result)
         assert contains_alphanum and contains_punctuation, (
             "Expected the response to be alphanumeric with special characters."
         )
-        assert len(result.text) == password_length, (
-            f"Expected a random password of length {password_length}. Obtained a password of length {len(result.text)}."
+        assert len(result) == password_length, (
+            f"Expected a random password of length {password_length}. Obtained a password of length {len(result)}."
         )
 
     def test_tool_text_web_search(self, mcp_client: Client):
@@ -360,21 +368,20 @@ class TestMCPServer:
         assert hasattr(results, "content"), (
             "Expected the results to have a 'content' attribute."
         )
-        assert len(results.content) == 1, (
-            f"Expected one result for the {tool_name} tool."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
         )
-        result_json = json.loads(result.text)
-        assert isinstance(result_json, list), (
+        result = results.structured_content["result"]
+        assert isinstance(result, list), (
             "Expected the response JSON object to be a list."
         )
-        assert len(result_json) == 1, (
+        assert len(result) == 1, (
             "Expected the response JSON object to contain exactly one search result."
         )
-        assert result_json[0]["href"].startswith("http"), (
+        assert result[0]["href"].startswith("http"), (
             "Expected the response JSON object with a 'href' key pointing to a HTTP(S) URL."
         )
 
@@ -387,16 +394,16 @@ class TestMCPServer:
         assert hasattr(results, "content"), (
             "Expected the results to have a 'content' attribute."
         )
-        assert len(results.content) == 1, (
-            f"Expected one result for the {tool_name} tool."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
         )
-        assert result.text.isdigit(), "Expected the response to be a number."
-        assert int(result.text) == 518918400, (
-            f"Expected 518918400 permutations for n=16, k=8. Obtained {result.text}."
+        result = results.structured_content["result"]
+        assert type(result) is int, "Expected the response to be a number."
+        assert result == 518918400, (
+            f"Expected 518918400 permutations for n=16, k=8. Obtained {result}."
         )
 
         results = asyncio.run(self.call_tool(tool_name, mcp_client, n=16))
@@ -406,21 +413,19 @@ class TestMCPServer:
         assert len(results.content) == 1, (
             f"Expected one result for the {tool_name} tool."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
         )
-        assert result.text.isdigit(), "Expected the response to be a number."
-        assert int(result.text) == 20922789888000, (
-            f"Expected 20922789888000 permutations for n=16 since k was not provided. Obtained {result.text}."
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
         )
-        try:
+        result = results.structured_content["result"]
+        assert type(result) is int, "Expected the response to be a number."
+        assert result == 20922789888000, (
+            f"Expected 20922789888000 permutations for n=16 since k was not provided. Obtained {result}."
+        )
+        with pytest.raises(ToolError, match=f"Error calling tool '{tool_name}'"):
             results = asyncio.run(self.call_tool(tool_name, mcp_client, n=16, k=32))
-        except ToolError as e:
-            assert (
-                "Error calling tool 'permutations': k (32) cannot be greater than n (16)"
-                in str(e)
-            )
 
     def test_tool_pirate_summary(self, mcp_client: Client):
         """
@@ -440,15 +445,18 @@ class TestMCPServer:
         assert len(results.content) == 1, (
             f"Expected one result for the {tool_name} tool."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
         )
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
+        )
+        result = results.structured_content["result"]
         # Since we do not have a language model at our disposal, we expect a UUID.
         uuid_pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$"
-        match = re.match(uuid_pattern, result.text)
+        match = re.match(uuid_pattern, result)
         assert match, (
-            f"Expected the response to be a UUID. The obtained response does not match the expected format: {result.text}"
+            f"Expected the response to be a UUID. The obtained response does not match the expected format: {result}"
         )
 
     def test_tool_vonmises_random(self, mcp_client: Client):
@@ -469,7 +477,13 @@ class TestMCPServer:
         assert len(results.content) == 1, (
             f"Expected one result for the {tool_name} tool."
         )
-        result = results.content[0]
-        assert hasattr(result, "text"), (
-            "Expected the result to have a 'text' attribute containing the response."
+        assert getattr(results, "structured_content", None) is not None, (
+            "Expected the results to have a 'structured_content' attribute."
+        )
+        assert "result" in results.structured_content, (
+            "Expected the 'structured_content' to have a 'result' key."
+        )
+        result = results.structured_content["result"]
+        assert type(result) is float, (
+            "Expected the response to be a floating point number."
         )

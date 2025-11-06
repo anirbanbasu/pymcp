@@ -9,6 +9,7 @@ from typing import Annotated, Optional
 from ddgs import DDGS
 from fastmcp import FastMCP, Context
 from fastmcp.prompts.prompt import PromptMessage, TextContent
+from fastmcp.tools.tool import ToolResult
 from mcp import McpError
 from mcp.types import (
     ErrorData,
@@ -16,7 +17,7 @@ from mcp.types import (
 )
 from importlib.metadata import version
 
-from pymcp import env
+from pymcp import PACKAGE_NAME, env
 from marshmallow.validate import OneOf
 from pydantic import Field
 
@@ -31,8 +32,6 @@ from fastmcp.server.elicitation import (
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
 from pymcp.mixin import MCPMixin
 
-
-PACKAGE_NAME = "pymcp-template"
 package_version = version(PACKAGE_NAME)
 
 
@@ -94,14 +93,17 @@ class PyMCP(MCPMixin):
                 validate_default=False,
             ),
         ] = None,
-    ) -> str:
+    ) -> ToolResult:
         """Greet the caller with a quintessential Hello World message."""
         welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(timezone.utc).isoformat()}."
+        response: str = ""
         if name is None or name.strip() == "":
             await ctx.warning("No name provided, using default greeting.")
-            return f"Hello World! {welcome_message}"
-        await ctx.info(f"Greeting {name}.")
-        return f"Hello, {name}! {welcome_message}"
+            response = f"Hello World! {welcome_message}"
+        else:
+            await ctx.info(f"Greeting {name}.")
+            response = f"Hello, {name}! {welcome_message}"
+        return self.get_tool_result(response)
 
     async def generate_password(
         self,
@@ -122,7 +124,7 @@ class PyMCP(MCPMixin):
                 description="Include special characters in the password.",
             ),
         ] = False,
-    ) -> str:
+    ) -> ToolResult:
         """
         Generate a random password with specified length, optionally including special characters.
         The password will meet the complexity requirements of at least one lowercase letter, one uppercase letter, and two digits.
@@ -150,7 +152,7 @@ class PyMCP(MCPMixin):
                 await ctx.warning(
                     f"Re-generating since the generated password did not meet complexity requirements: {password}"
                 )
-        return password
+        return self.get_tool_result(password)
 
     async def text_web_search(
         self,
@@ -184,7 +186,7 @@ class PyMCP(MCPMixin):
                 description="The number of pages to fetch. Default is 1, maximum is 10.",
             ),
         ] = 1,
-    ):
+    ) -> ToolResult:
         """
         Perform a text web search using the provided query using DDGS.
         """
@@ -194,7 +196,7 @@ class PyMCP(MCPMixin):
         )
         if results:
             await ctx.info(f"Found {len(results)} results for the query.")
-        return results
+        return self.get_tool_result(results)
 
     async def permutations(
         self,
@@ -214,7 +216,7 @@ class PyMCP(MCPMixin):
                 description="The optional number of items to choose.",
             ),
         ],
-    ) -> int:
+    ) -> ToolResult:
         """
         Calculate the number of ways to choose k items from n items without repetition and with order.
         If k is not provided, it defaults to n.
@@ -231,9 +233,9 @@ class PyMCP(MCPMixin):
                 )
             )
 
-        return math.perm(n, k)
+        return self.get_tool_result(math.perm(n, k))
 
-    async def pirate_summary(self, ctx: Context, text: str) -> str:
+    async def pirate_summary(self, ctx: Context, text: str) -> ToolResult:
         """
         Summarise the given text in a pirate style.
         This is an example of a tool that can use LLM sampling to generate a summary.
@@ -245,7 +247,7 @@ class PyMCP(MCPMixin):
             temperature=0.9,  # High creativity
             max_tokens=1024,  # Pirates can be a bit verbose!
         )
-        return response.text
+        return self.get_tool_result(response.text)
 
     async def vonmises_random(
         self,
@@ -258,7 +260,7 @@ class PyMCP(MCPMixin):
                 le=2 * math.pi,
             ),
         ],
-    ) -> float:
+    ) -> ToolResult:
         """
         Generate a random number from the von Mises distribution.
         This is an example of a tool that uses elicitation to obtain the required parameter kappa (κ).
@@ -295,7 +297,7 @@ class PyMCP(MCPMixin):
                         message="Operation cancelled by the user.",
                     )
                 )
-        return random.vonmisesvariate(mu=mu, kappa=kappa)
+        return self.get_tool_result(random.vonmisesvariate(mu, kappa))
 
     async def resource_logo(self, ctx: Context) -> Base64EncodedBinaryDataResponse:
         """

@@ -1,7 +1,12 @@
 from typing import Any, ClassVar, Dict, List
 
 from fastmcp import FastMCP
+from fastmcp.tools.tool import ToolResult
 import copy
+
+from importlib.metadata import metadata as importlib_metadata
+
+from pymcp import PACKAGE_NAME
 
 
 class MCPMixin:
@@ -55,3 +60,15 @@ class MCPMixin:
             mcp.prompt(**pr_copy)(fn)
 
         return mcp
+
+    def get_tool_result(
+        self, result: Any, metadata: Dict[str, Any] | None = None
+    ) -> ToolResult:
+        if metadata is None:
+            metadata = {}
+        _package_metadata = importlib_metadata(PACKAGE_NAME)
+        metadata["_package_metadata"] = {
+            "name": _package_metadata["name"],
+            "version": _package_metadata["version"],
+        }
+        return ToolResult(structured_content={"result": result}, meta=metadata)
