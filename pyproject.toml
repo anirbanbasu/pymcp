@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "ddgs>=9.5.4",
     "environs>=14.3.0",
-    "fastmcp>=2.9.2",
+    "fastmcp",
 ]
 
 [project.scripts]
