@@ -86,7 +86,7 @@ ignore = [
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
-known-first-party = ["pymcp-template"]
+known-first-party = ["pymcp"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
