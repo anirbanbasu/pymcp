@@ -27,7 +27,9 @@ class StripUnknownArgumentsMiddleware(Middleware):
                     for k, v in context.message.arguments.items()
                     if k in expected_args_names
                 }
-                unknown_args = set(context.message.arguments.keys()) - expected_args_names
+                unknown_args = set(
+                    context.message.arguments.keys()
+                ).difference(expected_args_names)
                 if unknown_args:
                     logger.info(
                         f"Unknown arguments for tool '{context.message.name}': {list(unknown_args)}"
