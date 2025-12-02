@@ -15,6 +15,7 @@ from fastmcp.client.sampling import SamplingMessage, SamplingParams
 from fastmcp.client.elicitation import ElicitRequestParams, ElicitResult
 
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
+from pymcp.middleware import StripUnknownArgumentsMiddleware
 from pymcp.server import PyMCP
 
 
@@ -58,6 +59,7 @@ class TestMCPServer:
         server = FastMCP()
         mcp_obj = PyMCP()
         server_with_features = mcp_obj.register_features(server)
+        server_with_features.add_middleware(StripUnknownArgumentsMiddleware())
         return server_with_features
 
     @pytest.fixture(scope="class", autouse=True)
@@ -243,6 +245,7 @@ class TestMCPServer:
                 tool_name,
                 mcp_client,
                 name=name_to_be_greeted,
+                unknown_argument="This argument should be ignored by the server and not cause an error.",
             )
         )
         assert hasattr(results, "content"), (

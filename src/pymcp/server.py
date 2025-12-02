@@ -30,6 +30,7 @@ from fastmcp.server.elicitation import (
 )
 
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
+from pymcp.middleware import StripUnknownArgumentsMiddleware
 from pymcp.mixin import MCPMixin
 
 package_version = version(PACKAGE_NAME)
@@ -399,6 +400,7 @@ def app() -> FastMCP:  # pragma: no cover
     )
     mcp_obj = PyMCP()
     app_with_features = mcp_obj.register_features(app)
+    app_with_features.add_middleware(StripUnknownArgumentsMiddleware())
     return app_with_features
 
 
