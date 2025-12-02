@@ -41,6 +41,7 @@ class TestStripUnknownArgumentsMiddleware:
         """
         async with mcp_client:
             result = await mcp_client.call_tool(tool_name, arguments=kwargs)
+            await mcp_client.close()
         return result
 
     def test_strip_unknown_arguments(self, mcp_client: Client, caplog):
