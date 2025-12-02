@@ -498,7 +498,6 @@ class TestStripUnknownArgumentsMiddleware:
     """
 
     @pytest.fixture(scope="class")
-    @classmethod
     def mcp_server(cls):
         """
         Fixture to create an MCP server instance with the middleware.
@@ -510,7 +509,6 @@ class TestStripUnknownArgumentsMiddleware:
         return server_with_features
 
     @pytest.fixture(scope="class", autouse=True)
-    @classmethod
     def mcp_client(cls, mcp_server):
         """
         Fixture to create a client for the MCP server.
@@ -524,7 +522,6 @@ class TestStripUnknownArgumentsMiddleware:
         """
         async with mcp_client:
             result = await mcp_client.call_tool(tool_name, arguments=kwargs)
-            await mcp_client.close()
         return result
 
     def test_strip_unknown_arguments(self, mcp_client: Client, caplog):
