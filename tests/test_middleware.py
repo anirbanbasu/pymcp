@@ -27,6 +27,7 @@ class TestStripUnknownArgumentsMiddleware:
         return server_with_features
 
     @pytest.fixture(scope="class", autouse=True)
+    @classmethod
     def mcp_client(cls, mcp_server):
         """
         Fixture to create a client for the MCP server.
