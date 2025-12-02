@@ -58,7 +58,7 @@ python-version = "3.12"
 line-length = 120
 target-version = "py312"
 include = [
-    "src/frankfurtermcp/**/*.py",
+    "src/pymcp/**/*.py",
     "tests/**/*.py",
     "docs/**/*.py",
 ]
@@ -86,7 +86,7 @@ ignore = [
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
-known-first-party = ["pymcp"]
+known-first-party = ["pymcp-template"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
