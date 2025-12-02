@@ -1,34 +1,32 @@
 import base64
-import random
-import sys
-import string
 import hashlib
-import secrets
 import math
-from typing import Annotated, Optional
-from ddgs import DDGS
-from fastmcp import FastMCP, Context
-from fastmcp.prompts.prompt import PromptMessage, TextContent
-from fastmcp.tools.tool import ToolResult
-from mcp import McpError
-from mcp.types import (
-    ErrorData,
-    INVALID_PARAMS,
-)
+import random
+import secrets
+import string
+import sys
+from datetime import UTC, datetime
 from importlib.metadata import version
+from typing import Annotated
 
-from pymcp import PACKAGE_NAME, env
-from marshmallow.validate import OneOf
-from pydantic import Field
-
-from datetime import datetime, timezone
-
+from ddgs import DDGS
+from fastmcp import Context, FastMCP
+from fastmcp.prompts.prompt import PromptMessage, TextContent
 from fastmcp.server.elicitation import (
     AcceptedElicitation,
-    DeclinedElicitation,
     CancelledElicitation,
+    DeclinedElicitation,
 )
+from fastmcp.tools.tool import ToolResult
+from marshmallow.validate import OneOf
+from mcp import McpError
+from mcp.types import (
+    INVALID_PARAMS,
+    ErrorData,
+)
+from pydantic import Field
 
+from pymcp import PACKAGE_NAME, env
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
 from pymcp.middleware import StripUnknownArgumentsMiddleware
 from pymcp.mixin import MCPMixin
@@ -37,6 +35,8 @@ package_version = version(PACKAGE_NAME)
 
 
 class PyMCP(MCPMixin):
+    """A simple MCP server implementation demonstrating various features."""
+
     tools = [
         {
             "fn": "greet",
@@ -87,7 +87,7 @@ class PyMCP(MCPMixin):
         self,
         ctx: Context,
         name: Annotated[
-            Optional[str],
+            str | None,
             Field(
                 default=None,
                 description="The optional name to be greeted.",
@@ -96,7 +96,7 @@ class PyMCP(MCPMixin):
         ] = None,
     ) -> ToolResult:
         """Greet the caller with a quintessential Hello World message."""
-        welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(timezone.utc).isoformat()}."
+        welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(UTC).isoformat()}."
         response: str = ""
         if name is None or name.strip() == "":
             await ctx.warning("No name provided, using default greeting.")
@@ -126,13 +126,11 @@ class PyMCP(MCPMixin):
             ),
         ] = False,
     ) -> ToolResult:
-        """
-        Generate a random password with specified length, optionally including special characters.
-        The password will meet the complexity requirements of at least one lowercase letter, one uppercase letter, and two digits.
-        If special characters are included, it will also contain at least one such character.
+        """Generate a random password with specified length, optionally including special characters."""
+        """The password will meet the complexity requirements of at least one lowercase letter, one uppercase letter, and two digits.
+        If special characters are included, it will also contain at least one such character."
         Until the password meets these requirements, it will keep regenerating.
-        This is a simple example of a tool that can be used to generate passwords. It is not intended for production use.
-        """
+        "This is a simple example of a tool that can be used to generate passwords. It is not intended for production use."""
         characters = string.ascii_letters + string.digits
         if use_special_chars:
             characters += string.punctuation
@@ -142,15 +140,13 @@ class PyMCP(MCPMixin):
                 any(c.islower() for c in password)
                 and any(c.isupper() for c in password)
                 and sum(c.isdigit() for c in password) >= 2
-                and (
-                    not use_special_chars
-                    or any(c in string.punctuation for c in password)
-                )
+                and (not use_special_chars or any(c in string.punctuation for c in password))
             ):
                 await ctx.info("Generated password meets complexity requirements.")
                 break
             else:
-                await ctx.warning(
+                # Exclude from coverage because this may not always happen in tests
+                await ctx.warning(  # pragma: no cover
                     f"Re-generating since the generated password did not meet complexity requirements: {password}"
                 )
         return self.get_tool_result(password)
@@ -166,11 +162,11 @@ class PyMCP(MCPMixin):
             ),
         ],
         region: Annotated[
-            Optional[str],
+            str | None,
             Field(default="uk-en", description="Optional region to search in."),
         ] = "uk-en",
         max_results: Annotated[
-            Optional[int],
+            int | None,
             Field(
                 default=10,
                 ge=1,
@@ -179,7 +175,7 @@ class PyMCP(MCPMixin):
             ),
         ] = 10,
         pages: Annotated[
-            Optional[int],
+            int | None,
             Field(
                 default=1,
                 ge=1,
@@ -188,11 +184,9 @@ class PyMCP(MCPMixin):
             ),
         ] = 1,
     ) -> ToolResult:
-        """
-        Perform a text web search using the provided query using DDGS.
-        """
+        """Perform a text web search using the provided query using DDGS."""
         await ctx.info(f"Performing text web search for query: {query}")
-        results = DDGS().text(
+        results = DDGS().text(  # ty: ignore[unresolved-attribute]
             query=query, region=region, max_results=max_results, page=pages
         )
         if results:
@@ -210,7 +204,7 @@ class PyMCP(MCPMixin):
             ),
         ],
         k: Annotated[
-            Optional[int],
+            int | None,
             Field(
                 default=None,
                 ge=1,
@@ -218,10 +212,7 @@ class PyMCP(MCPMixin):
             ),
         ],
     ) -> ToolResult:
-        """
-        Calculate the number of ways to choose k items from n items without repetition and with order.
-        If k is not provided, it defaults to n.
-        """
+        """Calculate the number of ways to choose k items from n items without repetition and with order.If k is not provided, it defaults to n."""
         assert isinstance(n, int) and n >= 1, "n must be a positive integer."
 
         if k is None:
@@ -237,10 +228,7 @@ class PyMCP(MCPMixin):
         return self.get_tool_result(math.perm(n, k))
 
     async def pirate_summary(self, ctx: Context, text: str) -> ToolResult:
-        """
-        Summarise the given text in a pirate style.
-        This is an example of a tool that can use LLM sampling to generate a summary.
-        """
+        """Summarise the given text in a pirate style. This is an example of a tool that can use LLM sampling to generate a summary."""
         await ctx.info("Summarising text in pirate style using client LLM sampling.")
         response = await ctx.sample(
             messages=text,
@@ -248,7 +236,7 @@ class PyMCP(MCPMixin):
             temperature=0.9,  # High creativity
             max_tokens=1024,  # Pirates can be a bit verbose!
         )
-        return self.get_tool_result(response.text)
+        return self.get_tool_result(getattr(response, "text", None))  # type: ignore
 
     async def vonmises_random(
         self,
@@ -262,13 +250,8 @@ class PyMCP(MCPMixin):
             ),
         ],
     ) -> ToolResult:
-        """
-        Generate a random number from the von Mises distribution.
-        This is an example of a tool that uses elicitation to obtain the required parameter kappa (κ).
-        """
-        await ctx.info(
-            "Requesting the user for the value of kappa for von Mises distribution."
-        )
+        """Generate a random number from the von Mises distribution. This is an example of a tool that uses elicitation to obtain the required parameter kappa (κ)."""
+        await ctx.info("Requesting the user for the value of kappa for von Mises distribution.")
         response = await ctx.elicit(
             message="Please provide the value of kappa (κ) for the von Mises distribution. It should be a positive number.",
             response_type=float,
@@ -285,13 +268,9 @@ class PyMCP(MCPMixin):
                         )
                     )
             case DeclinedElicitation():  # type: ignore[misc]
-                await ctx.warning(
-                    "User declined to provide kappa (κ). Using default value of 1.0."
-                )
+                await ctx.warning("User declined to provide kappa (κ). Using default value of 1.0.")
             case CancelledElicitation():  # type: ignore[misc]
-                await ctx.warning(
-                    "User cancelled the operation. The random number will NOT be generated."
-                )
+                await ctx.warning("User cancelled the operation. The random number will NOT be generated.")
                 raise McpError(
                     error=ErrorData(
                         code=INVALID_PARAMS,
@@ -301,18 +280,14 @@ class PyMCP(MCPMixin):
         return self.get_tool_result(random.vonmisesvariate(mu, kappa))
 
     async def resource_logo(self, ctx: Context) -> Base64EncodedBinaryDataResponse:
-        """
-        Get the base64 encoded PNG logo of PyMCP.
-        """
+        """Get the base64 encoded PNG logo of PyMCP."""
         await ctx.info("Reading the PNG logo for PyMCP.")
         with open("resources/logo.png", "rb") as logo_file:
             logo_content = logo_file.read()
             sha3_512_hasher = hashlib.sha3_512()
             sha3_512_hasher.update(logo_content)
             hex_digest = sha3_512_hasher.hexdigest()
-            await ctx.info(
-                f"Read {len(logo_content)} bytes from the logo file. SHA3-512: {hex_digest}"
-            )
+            await ctx.info(f"Read {len(logo_content)} bytes from the logo file. SHA3-512: {hex_digest}")
             logo_file.close()
         response = Base64EncodedBinaryDataResponse(
             data=base64.b64encode(logo_content).decode(),
@@ -322,9 +297,7 @@ class PyMCP(MCPMixin):
         return response
 
     async def resource_logo_svg(self, ctx: Context) -> str:
-        """
-        Get the PyMCP logo as SVG.
-        """
+        """Get the PyMCP logo as SVG."""
         await ctx.info("Reading the SVG logo for PyMCP.")
         with open("resources/logo.svg", "rb") as logo_file:
             logo_content = logo_file.read()
@@ -345,8 +318,8 @@ class PyMCP(MCPMixin):
             ),
         ],
     ) -> str:
+        """Computes the modulus 10 of a given number and returns a Unicode character representing the result."""
         """
-        Computes the modulus 10 of a given number and returns a Unicode character representing the result.
         The character is chosen based on whether the modulus is odd or even:
         - For odd modulus, it uses the Unicode character starting from ❶ (U+2776).
         - For even modulus, it uses the Unicode character starting from ① (U+2460).
@@ -367,16 +340,12 @@ class PyMCP(MCPMixin):
                 f"{number} modulo 10 is even, using character type {chr(int(hex(circled_zero), 16))} to represent the modulus."
             )
             unicode_symbol = (
-                chr(int(hex(even_base + modulus - 1), 16))
-                if modulus != 0
-                else chr(int(hex(circled_zero), 16))
+                chr(int(hex(even_base + modulus - 1), 16)) if modulus != 0 else chr(int(hex(circled_zero), 16))
             )
         return unicode_symbol
 
     async def code_prompt(self, ctx: Context, task: str) -> PromptMessage:
-        """
-        Get a prompt to write a code snippet in Python based on the specified task.
-        """
+        """Get a prompt to write a code snippet in Python based on the specified task."""
         content = f"""Write a Python code snippet to perform the following task:
         [TASK]
         {task}
@@ -384,12 +353,11 @@ class PyMCP(MCPMixin):
         The code should be well-commented and follow best practices.
         Make sure to include necessary imports and handle any exceptions that may arise."""
 
-        return PromptMessage(
-            role="user", content=TextContent(type="text", text=content)
-        )
+        return PromptMessage(role="user", content=TextContent(type="text", text=content))
 
 
 def app() -> FastMCP:  # pragma: no cover
+    """Create and configure the FastMCP application instance."""
     app = FastMCP(
         name=PACKAGE_NAME,
         version=package_version,
@@ -405,6 +373,7 @@ def app() -> FastMCP:  # pragma: no cover
 
 
 def main():  # pragma: no cover
+    """Main entry point to run the FastMCP server."""
     try:
         # Run the FastMCP server using stdio by default.
         # Other transports can be configured as needed using the MCP_SERVER_TRANSPORT environment variable.

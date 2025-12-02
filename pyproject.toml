@@ -1,6 +1,6 @@
 [project]
 name = "pymcp-template"
-version = "0.2.0"
+version = "0.2.1"
 description = "A template for developing MCP servers in Python"
 readme = "README.md"
 license = "MIT"
@@ -39,8 +39,91 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pre-commit>=4.2.0",
+    "ty>=0.0.1a29",
 ]
 test = [
     "coverage>=7.9.1",
     "pytest>=8.4.1",
+]
+
+[tool.ty.rules]
+possibly-unresolved-reference = "warn"
+# Keyword argument expansion is not supported by ty yet? https://github.com/astral-sh/ty/issues/247
+invalid-argument-type = "ignore"
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+include = [
+    "src/frankfurtermcp/**/*.py",
+    "tests/**/*.py",
+    "docs/**/*.py",
+]
+
+[tool.ruff.lint]
+extend-select = [
+    "Q",
+    "RUF100",
+    "RUF018", # https://docs.astral.sh/ruff/rules/assignment-in-assert/
+    "C90",
+    "UP",
+    "I",
+    "D",
+    "TID251",
+]
+# flake8-quotes = { inline-quotes = "single", multiline-quotes = "double" }
+mccabe = { max-complexity = 15 }
+ignore = [
+    "D100", # ignore missing docstring in module
+    "D102", # ignore missing docstring in public method
+    "D104", # ignore missing docstring in public package
+    "D105", # ignore missing docstring in magic methods
+    "D107", # ignore missing docstring in __init__ methods
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["frankfurtermcp"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+# don't format python in docstrings, pytest-examples takes care of it
+docstring-code-format = false
+# quote-style = "single"
+
+[tool.coverage.run]
+omit = [
+    "tests/*", # Excludes all files and subdirectories within a 'tests' directory at the project root
+]
+
+[tool.coverage.report]
+fail_under = 100
+skip_covered = true
+show_missing = true
+ignore_errors = true
+precision = 2
+exclude_lines = [
+    # `# pragma: no cover` is standard marker for code that's not covered, this will error if code is covered
+    'pragma: no cover',
+    # use `# pragma: lax no cover` if you want to ignore cases where (some of) the code is covered
+    'pragma: lax no cover',
+    'raise NotImplementedError',
+    'if TYPE_CHECKING:',
+    'if typing.TYPE_CHECKING:',
+    '@overload',
+    '@deprecated',
+    '@typing.overload',
+    '@abstractmethod',
+    '\(Protocol\):$',
+    'typing.assert_never',
+    '$\s*assert_never\(',
+    'if __name__ == .__main__.:',
+    'except ImportError as _import_error:',
+    '$\s*pass$',
+    'assert False',
 ]
