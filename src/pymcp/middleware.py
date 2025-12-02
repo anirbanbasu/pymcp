@@ -35,5 +35,5 @@ class StripUnknownArgumentsMiddleware(Middleware):
                 )
                 context.message.arguments = filtered_args  # modify in place
         except Exception as e:  # pragma: no cover
-            logger.error(f"Error in {StripUnknownArgumentsMiddleware.__name__}: {e}")
+            logger.error(f"Error in {StripUnknownArgumentsMiddleware.__name__}: {e}", exc_info=True)
         return await call_next(context)
