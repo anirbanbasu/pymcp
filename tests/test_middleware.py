@@ -15,6 +15,7 @@ class TestStripUnknownArgumentsMiddleware:
     """
 
     @pytest.fixture(scope="class")
+    @classmethod
     def mcp_server(cls):
         """
         Fixture to create an MCP server instance with the middleware.
