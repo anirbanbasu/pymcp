@@ -1,0 +1,40 @@
+import logging
+
+from fastmcp.server.middleware import Middleware
+
+logger = logging.getLogger(__name__)
+
+
+class StripUnknownArgumentsMiddleware(Middleware):
+    """Middleware to strip unknown arguments from MCP feature invocations."""
+
+    async def on_call_tool(self, context, call_next):
+        """Filter out unknown arguments from tool calls."""
+        try:
+            # Only proceed if this is a tool call with non-zero arguments
+            if (
+                context.fastmcp_context
+                and context.message.arguments
+                and len(context.message.arguments) > 0
+            ):
+                tool = await context.fastmcp_context.fastmcp.get_tool(
+                    context.message.name
+                )
+                tool_args = tool.parameters.get("properties", None)
+                expected_args_names = set(tool_args.keys()) if tool_args else set()
+                filtered_args = {
+                    k: v
+                    for k, v in context.message.arguments.items()
+                    if k in expected_args_names
+                }
+                unknown_args = set(
+                    context.message.arguments.keys()
+                ).difference(expected_args_names)
+                if unknown_args:
+                    logger.info(
+                        f"Unknown arguments for tool '{context.message.name}': {list(unknown_args)}"
+                    )
+                context.message.arguments = filtered_args  # modify in place
+        except Exception as e:  # pragma: no cover
+            logger.error(f"Error in {StripUnknownArgumentsMiddleware.__name__}: {e}", exc_info=True)
+        return await call_next(context)
