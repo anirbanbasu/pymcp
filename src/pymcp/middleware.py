@@ -29,10 +29,11 @@ class StripUnknownArgumentsMiddleware(Middleware):
                 }
                 unknown_args = set(
                     context.message.arguments.keys()
-                ).symmetric_difference(expected_args_names)
-                logger.info(
-                    f"Unknown arguments for tool '{context.message.name}': {list(unknown_args)}"
-                )
+                ).difference(expected_args_names)
+                if unknown_args:
+                    logger.info(
+                        f"Unknown arguments for tool '{context.message.name}': {list(unknown_args)}"
+                    )
                 context.message.arguments = filtered_args  # modify in place
         except Exception as e:  # pragma: no cover
             logger.error(f"Error in {StripUnknownArgumentsMiddleware.__name__}: {e}", exc_info=True)
