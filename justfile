@@ -10,6 +10,12 @@ install-all:
     @uv sync --all-groups
     @echo "All project dependencies installed."
 
+# Install pre-commit hooks using 'prek'
+install-pre-commit:
+    @echo "Installing pre-commit hooks using prek..."
+    @prek install
+    @echo "Pre-commit hooks installed."
+
 # Update pre-commit hooks using 'prek'
 pre-commit-update:
     @echo "Updating pre-commit hooks using prek..."
