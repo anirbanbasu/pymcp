@@ -379,6 +379,10 @@ def app() -> FastMCP:  # pragma: no cover
             list_tools_settings=ListToolsSettings(
                 ttl=EnvVars.RESPONSE_CACHE_LIST_TOOL_TTL,
             ),
+            # Only deterministic tools are included in caching.
+            # Tools like 'text_web_search', 'pirate_summary', and 'vonmises_random' are excluded
+            # because they produce non-deterministic or time-sensitive results, and caching their
+            # outputs could lead to stale or incorrect responses.
             call_tool_settings=CallToolSettings(
                 included_tools=["greet", "generate_password", "permutations"],
             ),
