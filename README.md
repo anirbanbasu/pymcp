@@ -95,10 +95,10 @@ The following components are available on this MCP server.
 
 The directory where you clone this repository will be referred to as the _working directory_ or _WD_ hereinafter.
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/). To install the project with its minimal dependencies in a virtual environment, run the following in the _WD_. To install all non-essential dependencies (_which are required for developing and testing_), replace the `--no-dev` with the `--all-groups` flag in the following command.
+Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/). Install [`just`](https://github.com/casey/just?tab=readme-ov-file#installation). To install the project with its minimal dependencies in a virtual environment, run the following in the _WD_. To install all non-essential dependencies (_which are required for developing and testing_), replace the `install` taget with the `install-all` target in the following command.
 
 ```bash
-uv sync --no-dev
+just install
 ```
 
 # Standalone usage
@@ -153,45 +153,32 @@ The currently available remotely hosted options are as follows.
 
 # Testing and coverage
 
-To run the provided set of tests using `pytest`, execute the following in _WD_. Append the flag `--capture=tee-sys` to the following command to see the console output during the tests.
+To run the provided set of tests using `pytest`, execute the following in _WD_. To get a report on coverage while invoking the tests, run the following in _WD_.
 
 ```bash
-uv run --group test pytest tests/
-```
-
-To get a report on coverage while invoking the tests, run the following two commands.
-
-```bash
-uv run --group test coverage run -m pytest tests/
-uv run coverage report
+just test-coverage
 ```
 
 This will generate something like the following output.
 
 ```bash
-Name                                      Stmts   Miss  Cover   Missing
------------------------------------------------------------------------
-src/pymcp/__init__.py                         4      0   100%
-src/pymcp/data_model/__init__.py              0      0   100%
-src/pymcp/data_model/response_models.py      21      0   100%
-src/pymcp/mixin.py                           37      0   100%
-src/pymcp/server.py                         101      0   100%
-tests/__init__.py                             0      0   100%
-tests/test_data_models.py                    47      0   100%
-tests/test_server.py                        200      0   100%
------------------------------------------------------------------------
-TOTAL                                       410      0   100%
+Name    Stmts   Miss    Cover   Missing
+---------------------------------------
+TOTAL     181      0  100.00%
 ```
 
 # Contributing
 
-Install [`pre-commit`](https://pre-commit.com/) for Git by using the `--all-groups` flag for `uv sync` for the installation of PyMCP.
+Install [`prek`](https://prek.j178.dev/installation/) and install all dependencies using `just install-all` for the installation of PyMCP.
 
-Then enable `pre-commit` by running the following in the _WD_.
+Then enable `pre-commit` hooks by running the following in the _WD_.
 
 ```bash
-pre-commit install
+just install-pre-commit-hooks
 ```
+
+Also, check all the available development-specific targets by running `just -l`, e.g., `type-check`, `format`, etc.
+
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 # License

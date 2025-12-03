@@ -1,15 +1,13 @@
-from typing import ClassVar, List
-from pydantic import Base64Bytes, BaseModel, Field, model_validator
-
 import hashlib
+from typing import ClassVar
+
+from pydantic import Base64Bytes, BaseModel, Field, model_validator
 
 
 class Base64EncodedBinaryDataResponse(BaseModel):
-    """
-    A base64 encoded binary data for MCP response along with its cryptographic hash.
-    """
+    """A base64 encoded binary data for MCP response along with its cryptographic hash."""
 
-    AVAILABLE_HASH_ALGORITHMS: ClassVar[List[str]] = list(hashlib.algorithms_available)
+    AVAILABLE_HASH_ALGORITHMS: ClassVar[list[str]] = list(hashlib.algorithms_available)
     AVAILABLE_HASH_ALGORITHMS_STR: ClassVar[str] = ""
     if not AVAILABLE_HASH_ALGORITHMS:  # pragma: no cover
         pass
@@ -19,8 +17,7 @@ class Base64EncodedBinaryDataResponse(BaseModel):
         AVAILABLE_HASH_ALGORITHMS_STR = " and ".join(AVAILABLE_HASH_ALGORITHMS)
     else:
         AVAILABLE_HASH_ALGORITHMS_STR = (
-            ", ".join(AVAILABLE_HASH_ALGORITHMS[:-1])
-            + f", and {AVAILABLE_HASH_ALGORITHMS[-1]}"
+            ", ".join(AVAILABLE_HASH_ALGORITHMS[:-1]) + f", and {AVAILABLE_HASH_ALGORITHMS[-1]}"
         )
     # See https://docs.python.org/3/library/hashlib.html#shake-variable-length-digests
     SHAKE_DIGEST_LENGTH: ClassVar[int] = 32  # bytes
@@ -37,10 +34,7 @@ class Base64EncodedBinaryDataResponse(BaseModel):
 
     @model_validator(mode="after")
     def check_data_hash(self) -> "Base64EncodedBinaryDataResponse":
-        if (
-            self.hash_algorithm
-            not in Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS
-        ):
+        if self.hash_algorithm not in Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS:
             raise ValueError(
                 f"Unsupported hash algorithm: {self.hash_algorithm}. Available algorithms: {Base64EncodedBinaryDataResponse.AVAILABLE_HASH_ALGORITHMS_STR}"
             )
@@ -53,7 +47,5 @@ class Base64EncodedBinaryDataResponse(BaseModel):
             else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # type: ignore[call-arg]
         )
         if computed_hash != self.hash:
-            raise ValueError(
-                f"Hash mismatch: provided hash {self.hash} does not match computed hash {computed_hash}."
-            )
+            raise ValueError(f"Hash mismatch: provided hash {self.hash} does not match computed hash {computed_hash}.")
         return self

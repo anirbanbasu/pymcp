@@ -1,32 +1,28 @@
-from typing import Any, ClassVar, Dict, List
+import copy
+from importlib.metadata import metadata as importlib_metadata
+from typing import Any, ClassVar
 
 from fastmcp import FastMCP
 from fastmcp.tools.tool import ToolResult
-import copy
-
-from importlib.metadata import metadata as importlib_metadata
 
 from pymcp import PACKAGE_NAME
 
 
 class MCPMixin:
-    """
-    A mixin class to register tools, resources, and prompts with a FastMCP instance.
-    """
+    """A mixin class to register tools, resources, and prompts with a FastMCP instance."""
 
     # Each entry is a dict, must include "fn" (method name),
     # rest is arbitrary metadata relevant to FastMCP.
-    tools: ClassVar[List[Dict[str, Any]]] = []
+    tools: ClassVar[list[dict[str, Any]]] = []
     # Each entry is a dict, must include "fn" (method name) and "uri",
     # rest is arbitrary metadata relevant to FastMCP.
-    resources: ClassVar[List[Dict[str, Any]]] = []
+    resources: ClassVar[list[dict[str, Any]]] = []
     # Each entry is a dict, must include "fn" (method name),
     # rest is arbitrary metadata relevant to FastMCP.
-    prompts: ClassVar[List[Dict[str, Any]]] = []
+    prompts: ClassVar[list[dict[str, Any]]] = []
 
     def register_features(self, mcp: FastMCP) -> FastMCP:
-        """
-        Register tools, resources, and prompts with the given FastMCP instance.
+        """Register tools, resources, and prompts with the given FastMCP instance.
 
         Args:
             mcp (FastMCP): The FastMCP instance to register features with.
@@ -43,9 +39,7 @@ class MCPMixin:
             mcp.tool(**tool_copy)(fn)  # pass remaining metadata as kwargs
         # Register resources
         for res in self.resources:
-            assert "fn" in res and "uri" in res, (
-                "Resource metadata must include 'fn' and 'uri' keys."
-            )
+            assert "fn" in res and "uri" in res, "Resource metadata must include 'fn' and 'uri' keys."
             res_copy = copy.deepcopy(res)
             fn_name = res_copy.pop("fn")
             uri = res_copy.pop("uri")
@@ -61,11 +55,8 @@ class MCPMixin:
 
         return mcp
 
-    def get_tool_result(
-        self, result: Any, metadata: Dict[str, Any] | None = None
-    ) -> ToolResult:
-        """
-        Create a ToolResult object with the given result and metadata, including package metadata.
+    def get_tool_result(self, result: Any, metadata: dict[str, Any] | None = None) -> ToolResult:
+        """Create a ToolResult object with the given result and metadata, including package metadata.
 
         Args:
             result (Any): The result to include in the ToolResult.
