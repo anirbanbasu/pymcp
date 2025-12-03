@@ -191,7 +191,7 @@ class TestResponseMetadataMiddleware:
             await mcp_client.close()
         return result
 
-    def test_call_greet(self, mcp_client: Client, caplog):
+    def test_call_for_package_metadata(self, mcp_client: Client, caplog):
         """Test that metadata is added to tool responses and appropriate logging occurs."""
         tool_name = "greet"
         valid_name = "Test User"
@@ -223,4 +223,35 @@ class TestResponseMetadataMiddleware:
         # Verify logging occurred for metadata addition
         assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
             "Expected debug logging of package metadata addition"
+        )
+
+    def test_call_tool_no_response(self, mcp_client: Client, caplog):
+        """Test that the middleware passes up exceptions."""
+        tool_name = "permutations"
+
+        with caplog.at_level(logging.DEBUG):
+            try:
+                results = asyncio.run(
+                    self.call_tool(
+                        tool_name,
+                        mcp_client,
+                        n=5,
+                        k=6,  # k > n to force exception
+                    )
+                )
+            except Exception as e:
+                logger.error(f"Exception during tool call. {e}", exc_info=True)
+                results = None
+
+        # Verify the tool call returns None for non-existent tool
+        assert results is None, "Expected results to be None because of exception in tool"
+
+        # Verify error logging occurred
+        assert any(
+            record.levelno == logging.ERROR and "cannot be greater" in record.message for record in caplog.records
+        ), "Expected error logging due to exception in tool call"
+
+        # Verify no logging occurred for metadata addition since result is None
+        assert not any("Added package metadata to tool response" in record.message for record in caplog.records), (
+            "Did not expect debug logging of package metadata addition when exceptions occur"
         )

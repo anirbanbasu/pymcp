@@ -1,5 +1,6 @@
 import logging
-from importlib.metadata import metadata as importlib_metadata
+from importlib.metadata import PackageMetadata, metadata as importlib_metadata
+from typing import ClassVar
 
 from fastmcp.server.middleware import Middleware
 
@@ -35,17 +36,21 @@ class StripUnknownArgumentsMiddleware(Middleware):
 class ResponseMetadataMiddleware(Middleware):
     """Middleware to add metadata to MCP responses."""
 
+    _package_metadata: ClassVar[PackageMetadata] = importlib_metadata(PACKAGE_NAME)
+
     async def on_call_tool(self, context, call_next):
         """Add metadata to tool responses."""
+        # Do not encapsulate this in a try-except; let errors propagate
         result = await call_next(context)
-        if result is None:
+
+        if result is None:  # pragma: no cover
+            # Isn't this an impossible scenario?
             return result
         if result.meta is None:
             result.meta = {}
-        _package_metadata = importlib_metadata(PACKAGE_NAME)
         result.meta["_package_metadata"] = {
-            "name": _package_metadata["name"],
-            "version": _package_metadata["version"],
+            "name": ResponseMetadataMiddleware._package_metadata["name"],
+            "version": ResponseMetadataMiddleware._package_metadata["version"],
         }
         logger.debug(f"Added package metadata to tool response: {result.meta['_package_metadata']}")
         return result

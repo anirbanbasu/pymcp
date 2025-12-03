@@ -164,7 +164,7 @@ This will generate something like the following output.
 ```bash
 Name    Stmts   Miss    Cover   Missing
 ---------------------------------------
-TOTAL     181      0  100.00%
+TOTAL     192      0  100.00%
 ```
 
 # Contributing
