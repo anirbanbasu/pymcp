@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import string
 
 import pytest
 from fastmcp import Client, FastMCP
@@ -215,10 +216,14 @@ class TestResponseMetadataMiddleware:
         assert valid_name in greeting, f"Expected greeting to contain '{valid_name}'"
 
         assert getattr(results, "meta", None) is not None, "Expected results to have a valid 'meta' attribute"
-        assert "_package_metadata" in results.meta, "Expected '_package_metadata' in meta"
-        assert "name" in results.meta["_package_metadata"], "Expected 'name' in package metadata"
-        assert "version" in results.meta["_package_metadata"], "Expected 'version' in package metadata"
-        assert results.meta["_package_metadata"]["name"] == "pymcp-template"
+        assert ResponseMetadataMiddleware.PACKAGE_METADATA_KEY in results.meta, "Expected '_package_metadata' in meta"
+        assert "name" in results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY], (
+            "Expected 'name' in package metadata"
+        )
+        assert "version" in results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY], (
+            "Expected 'version' in package metadata"
+        )
+        assert results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]["name"] == "pymcp-template"
 
         # Verify logging occurred for metadata addition
         assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
@@ -254,4 +259,57 @@ class TestResponseMetadataMiddleware:
         # Verify no logging occurred for metadata addition since result is None
         assert not any("Added package metadata to tool response" in record.message for record in caplog.records), (
             "Did not expect debug logging of package metadata addition when exceptions occur"
+        )
+
+    def test_call_tool_with_specific_metadata(self, mcp_client: Client, caplog):
+        """Test that existing metadata is preserved and package metadata is added."""
+        tool_name = "generate_password"
+        expected_password_length = 12
+
+        tool_specific_metadata = {
+            "length_satisfied": True,
+            "character_set": string.ascii_letters + string.digits + string.punctuation,
+        }
+
+        with caplog.at_level(logging.DEBUG):
+            results = asyncio.run(
+                self.call_tool(
+                    tool_name,
+                    mcp_client,
+                    use_special_chars=True,
+                    length=expected_password_length,
+                )
+            )
+
+        # Verify the tool call succeeded with valid argument
+        assert hasattr(results, "content"), "Expected results to have 'content' attribute"
+        assert hasattr(results, "structured_content"), "Expected results to have 'structured_content' attribute"
+        assert "result" in results.structured_content, "Expected 'structured_content' to have 'result' key"
+
+        # Verify the greeting contains the valid name (proving valid args passed through)
+        generated_password = results.structured_content["result"]
+        assert len(generated_password) == expected_password_length, (
+            f"Expected generated password to be of length {expected_password_length}, got {len(generated_password)}"
+        )
+
+        assert getattr(results, "meta", None) is not None, "Expected results to have a valid 'meta' attribute"
+        assert ResponseMetadataMiddleware.PACKAGE_METADATA_KEY in results.meta, "Expected '_package_metadata' in meta"
+        assert "name" in results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY], (
+            "Expected 'name' in package metadata"
+        )
+        assert "version" in results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY], (
+            "Expected 'version' in package metadata"
+        )
+        assert results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]["name"] == "pymcp-template"
+
+        # Verify tool specific metadata is still present
+        for key, value in tool_specific_metadata.items():
+            assert key in results.meta[tool_name], f"Expected tool specific metadata key '{key}' to be present"
+            assert results.meta[tool_name][key] == value, (
+                f"Expected tool specific metadata key '{key}' to have value '{value}'"
+            )
+
+        # Verify logging occurred for metadata addition
+        assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
+            "Expected debug logging of package metadata addition"
         )

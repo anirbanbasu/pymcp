@@ -23,6 +23,7 @@ from fastmcp.server.middleware.caching import (
     ReadResourceSettings,
     ResponseCachingMiddleware,
 )
+from fastmcp.tools.tool import ToolResult
 from mcp import McpError
 from mcp.types import (
     INVALID_PARAMS,
@@ -129,7 +130,7 @@ class PyMCP(MCPMixin):
                 description="Include special characters in the password.",
             ),
         ] = False,
-    ) -> str:
+    ) -> ToolResult:
         """Generate a random password with specified length, optionally including special characters."""
         """The password will meet the complexity requirements of at least one lowercase letter, one uppercase letter, and two digits.
         If special characters are included, it will also contain at least one such character.
@@ -138,8 +139,10 @@ class PyMCP(MCPMixin):
         characters = string.ascii_letters + string.digits
         if use_special_chars:
             characters += string.punctuation
+        password_generation_attempts = 0
         while True:
             password = "".join(secrets.choice(characters) for _ in range(length))
+            password_generation_attempts += 1
             if (
                 any(c.islower() for c in password)
                 and any(c.isupper() for c in password)
@@ -153,7 +156,16 @@ class PyMCP(MCPMixin):
                 await ctx.warning(  # pragma: no cover
                     f"Re-generating since the generated password did not meet complexity requirements: {password}"
                 )
-        return password
+        return self.get_tool_result(
+            result=password,
+            metadata={
+                "generate_password": {
+                    "length_satisfied": len(password) == length,
+                    "character_set": characters,
+                    "generation_attempts": password_generation_attempts,
+                }
+            },
+        )
 
     async def text_web_search(
         self,

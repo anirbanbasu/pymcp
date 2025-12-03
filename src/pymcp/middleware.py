@@ -37,6 +37,7 @@ class ResponseMetadataMiddleware(Middleware):
     """Middleware to add metadata to MCP responses."""
 
     _package_metadata: ClassVar[PackageMetadata] = importlib_metadata(PACKAGE_NAME)
+    PACKAGE_METADATA_KEY: ClassVar[str] = "_package_metadata"
 
     async def on_call_tool(self, context, call_next):
         """Add metadata to tool responses."""
@@ -48,7 +49,7 @@ class ResponseMetadataMiddleware(Middleware):
             return result
         if result.meta is None:
             result.meta = {}
-        result.meta["_package_metadata"] = {
+        result.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY] = {
             "name": ResponseMetadataMiddleware._package_metadata["name"],
             "version": ResponseMetadataMiddleware._package_metadata["version"],
         }

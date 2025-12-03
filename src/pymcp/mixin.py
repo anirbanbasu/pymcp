@@ -1,12 +1,11 @@
 import copy
-import warnings
-from importlib.metadata import metadata as importlib_metadata
+import logging
 from typing import Any, ClassVar
 
 from fastmcp import FastMCP
 from fastmcp.tools.tool import ToolResult
 
-from pymcp import PACKAGE_NAME
+logger = logging.getLogger(__name__)
 
 
 class MCPMixin:
@@ -66,17 +65,7 @@ class MCPMixin:
         Returns:
             ToolResult: The ToolResult object containing the result and metadata.
         """
-        warnings.warn(
-            message="get_tool_result is deprecated and will be removed in future versions. "
-            "Response metadata will be handled by middleware.",
-            category=DeprecationWarning,
-            stacklevel=2,
+        return ToolResult(
+            structured_content={"result": result} if not isinstance(result, dict) else result,
+            meta=metadata if metadata is not None else None,
         )
-        if metadata is None:
-            metadata = {}
-        _package_metadata = importlib_metadata(PACKAGE_NAME)
-        metadata["_package_metadata"] = {
-            "name": _package_metadata["name"],
-            "version": _package_metadata["version"],
-        }
-        return ToolResult(structured_content={"result": result}, meta=metadata)
