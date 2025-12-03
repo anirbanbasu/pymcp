@@ -215,6 +215,10 @@ class TestResponseMetadataMiddleware:
         assert valid_name in greeting, f"Expected greeting to contain '{valid_name}'"
 
         assert getattr(results, "meta", None) is not None, "Expected results to have a valid 'meta' attribute"
+        assert "_package_metadata" in results.meta, "Expected '_package_metadata' in meta"
+        assert "name" in results.meta["_package_metadata"], "Expected 'name' in package metadata"
+        assert "version" in results.meta["_package_metadata"], "Expected 'version' in package metadata"
+        assert results.meta["_package_metadata"]["name"] == "pymcp-template"
 
         # Verify logging occurred for metadata addition
         assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
