@@ -301,7 +301,7 @@ class TestResponseMetadataMiddleware:
         assert hasattr(results, "structured_content"), "Expected results to have 'structured_content' attribute"
         assert "result" in results.structured_content, "Expected 'structured_content' to have 'result' key"
 
-        # Verify the greeting contains the valid name (proving valid args passed through)
+        # Verify the generated password has the expected length
         generated_password = results.structured_content["result"]
         assert len(generated_password) == expected_password_length, (
             f"Expected generated password to be of length {expected_password_length}, got {len(generated_password)}"
