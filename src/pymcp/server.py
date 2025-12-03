@@ -17,8 +17,13 @@ from fastmcp.server.elicitation import (
     CancelledElicitation,
     DeclinedElicitation,
 )
+from fastmcp.server.middleware.caching import (
+    CallToolSettings,
+    ListToolsSettings,
+    ReadResourceSettings,
+    ResponseCachingMiddleware,
+)
 from fastmcp.tools.tool import ToolResult
-from marshmallow.validate import OneOf
 from mcp import McpError
 from mcp.types import (
     INVALID_PARAMS,
@@ -26,7 +31,7 @@ from mcp.types import (
 )
 from pydantic import Field
 
-from pymcp import PACKAGE_NAME, env
+from pymcp import PACKAGE_NAME, EnvVars
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
 from pymcp.middleware import StripUnknownArgumentsMiddleware
 from pymcp.mixin import MCPMixin
@@ -370,6 +375,17 @@ def app() -> FastMCP:  # pragma: no cover
     mcp_obj = PyMCP()
     app_with_features = mcp_obj.register_features(app)
     app_with_features.add_middleware(StripUnknownArgumentsMiddleware())
+    app_with_features.add_middleware(
+        ResponseCachingMiddleware(
+            list_tools_settings=ListToolsSettings(
+                ttl=EnvVars.RESPONSE_CACHE_LIST_TOOL_TTL,
+            ),
+            call_tool_settings=CallToolSettings(
+                included_tools=["greet", "generate_password", "permutations"],
+            ),
+            read_resource_settings=ReadResourceSettings(enabled=True),
+        )
+    )
     return app_with_features
 
 
@@ -379,11 +395,7 @@ def main():  # pragma: no cover
         # Run the FastMCP server using stdio by default.
         # Other transports can be configured as needed using the MCP_SERVER_TRANSPORT environment variable.
         app().run(
-            transport=env.str(
-                name="MCP_SERVER_TRANSPORT",
-                default="stdio",
-                validate=OneOf(["stdio", "streamable-http", "sse"]),
-            )
+            transport=EnvVars.MCP_SERVER_TRANSPORT,
         )
     except KeyboardInterrupt:
         sys.exit(0)
