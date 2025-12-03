@@ -216,7 +216,7 @@ class TestResponseMetadataMiddleware:
 
         assert getattr(results, "meta", None) is not None, "Expected results to have a valid 'meta' attribute"
 
-        # Verify logging occurred for unknown arguments
+        # Verify logging occurred for metadata addition
         assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
             "Expected debug logging of package metadata addition"
         )
