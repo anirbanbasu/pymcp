@@ -216,7 +216,12 @@ class TestResponseMetadataMiddleware:
         assert valid_name in greeting, f"Expected greeting to contain '{valid_name}'"
 
         assert getattr(results, "meta", None) is not None, "Expected results to have a valid 'meta' attribute"
-        assert ResponseMetadataMiddleware.PACKAGE_METADATA_KEY in results.meta, "Expected '_package_metadata' in meta"
+        assert ResponseMetadataMiddleware.PACKAGE_METADATA_KEY in results.meta, (
+            f"Expected '{ResponseMetadataMiddleware.PACKAGE_METADATA_KEY}' in meta"
+        )
+        assert ResponseMetadataMiddleware.TIMING_METADATA_KEY in results.meta, (
+            f"Expected '{ResponseMetadataMiddleware.TIMING_METADATA_KEY}' in meta"
+        )
         assert "name" in results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY], (
             "Expected 'name' in package metadata"
         )
@@ -224,6 +229,12 @@ class TestResponseMetadataMiddleware:
             "Expected 'version' in package metadata"
         )
         assert results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]["name"] == "pymcp-template"
+        assert "tool_execution_time_ms" in results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY], (
+            "Expected 'tool_execution_time_ms' in timing metadata"
+        )
+        assert isinstance(
+            results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY]["tool_execution_time_ms"], float
+        ), "Expected 'tool_execution_time_ms' to be a float"
 
         # Verify logging occurred for metadata addition
         assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
@@ -255,6 +266,10 @@ class TestResponseMetadataMiddleware:
         assert any(
             record.levelno == logging.ERROR and "cannot be greater" in record.message for record in caplog.records
         ), "Expected error logging due to exception in tool call"
+
+        assert any("failed after" in record.message for record in caplog.records), (
+            "Expected warning logging of operation failure"
+        )
 
         # Verify no logging occurred for metadata addition since result is None
         assert not any("Added package metadata to tool response" in record.message for record in caplog.records), (
@@ -293,7 +308,12 @@ class TestResponseMetadataMiddleware:
         )
 
         assert getattr(results, "meta", None) is not None, "Expected results to have a valid 'meta' attribute"
-        assert ResponseMetadataMiddleware.PACKAGE_METADATA_KEY in results.meta, "Expected '_package_metadata' in meta"
+        assert ResponseMetadataMiddleware.PACKAGE_METADATA_KEY in results.meta, (
+            f"Expected '{ResponseMetadataMiddleware.PACKAGE_METADATA_KEY}' in meta"
+        )
+        assert ResponseMetadataMiddleware.TIMING_METADATA_KEY in results.meta, (
+            f"Expected '{ResponseMetadataMiddleware.TIMING_METADATA_KEY}' in meta"
+        )
         assert "name" in results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY], (
             "Expected 'name' in package metadata"
         )
@@ -301,6 +321,12 @@ class TestResponseMetadataMiddleware:
             "Expected 'version' in package metadata"
         )
         assert results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]["name"] == "pymcp-template"
+        assert "tool_execution_time_ms" in results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY], (
+            "Expected 'tool_execution_time_ms' in timing metadata"
+        )
+        assert isinstance(
+            results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY]["tool_execution_time_ms"], float
+        ), "Expected 'tool_execution_time_ms' to be a float"
 
         # Verify tool specific metadata is still present
         for key, value in tool_specific_metadata.items():
