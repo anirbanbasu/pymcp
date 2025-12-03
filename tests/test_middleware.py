@@ -343,7 +343,12 @@ class TestResponseMetadataMiddleware:
             "Expected 'character_set' to be a string"
         )
         # Verify character_set contains expected character types when use_special_chars=True
+        # The character_set should be the pool of available characters for password generation
         character_set = results.meta[tool_name]["character_set"]
+        expected_char_set = string.ascii_letters + string.digits + string.punctuation
+        assert len(character_set) == len(expected_char_set), (
+            f"Expected character_set length to be {len(expected_char_set)}, got {len(character_set)}"
+        )
         assert any(c in character_set for c in string.ascii_lowercase), (
             "Expected character_set to contain lowercase letters"
         )
