@@ -192,7 +192,7 @@ class TestResponseMetadataMiddleware:
         return result
 
     def test_call_greet(self, mcp_client: Client, caplog):
-        """Test that unknown arguments are stripped from tool calls and logged."""
+        """Test that metadata is added to tool responses and appropriate logging occurs."""
         tool_name = "greet"
         valid_name = "Test User"
 
