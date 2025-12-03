@@ -75,5 +75,5 @@ class ResponseMetadataMiddleware(Middleware):
         result.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY] = {
             "tool_execution_time_ms": duration_ms,
         }
-        logger.debug(f"Added package metadata to tool response: {result.meta['_package_metadata']}")
+        logger.debug(f"Added package metadata to tool response: {result.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]}")
         return result
