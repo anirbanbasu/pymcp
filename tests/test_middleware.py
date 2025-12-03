@@ -259,7 +259,7 @@ class TestResponseMetadataMiddleware:
                 logger.error(f"Exception during tool call. {e}", exc_info=True)
                 results = None
 
-        # Verify the tool call returns None for non-existent tool
+        # Verify the tool call returns None because an exception was raised (k > n is invalid)
         assert results is None, "Expected results to be None because of exception in tool"
 
         # Verify error logging occurred
