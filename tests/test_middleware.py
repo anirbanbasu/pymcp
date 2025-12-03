@@ -357,7 +357,6 @@ class TestResponseCachingMiddleware:
         return str(uuid.uuid4())
 
     @pytest.fixture(scope="class")
-    @classmethod
     def mcp_server(cls):
         """Fixture to create an MCP server instance with caching middleware configured like in server.py."""
         from fastmcp.server.middleware.caching import (
@@ -391,7 +390,6 @@ class TestResponseCachingMiddleware:
         return server_with_features
 
     @pytest.fixture(scope="class", autouse=True)
-    @classmethod
     def mcp_client(cls, mcp_server):
         """Fixture to create a client for the MCP server."""
         mcp_client = Client(
@@ -405,21 +403,18 @@ class TestResponseCachingMiddleware:
         """Helper method to call a tool on the MCP server."""
         async with mcp_client:
             result = await mcp_client.call_tool(tool_name, arguments=kwargs)
-            await mcp_client.close()
         return result
 
     async def read_resource(self, resource_uri: str, mcp_client: Client):
         """Helper method to read a resource from the MCP server."""
         async with mcp_client:
             result = await mcp_client.read_resource(resource_uri)
-            await mcp_client.close()
         return result
 
     async def list_tools(self, mcp_client: Client):
         """Helper method to list tools from the MCP server."""
         async with mcp_client:
             result = await mcp_client.list_tools()
-            await mcp_client.close()
         return result
 
     def test_list_tools_caching(self, mcp_client: Client):
