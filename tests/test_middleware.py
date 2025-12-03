@@ -4,7 +4,7 @@ import logging
 import pytest
 from fastmcp import Client, FastMCP
 
-from pymcp.middleware import StripUnknownArgumentsMiddleware
+from pymcp.middleware import ResponseMetadataMiddleware, StripUnknownArgumentsMiddleware
 from pymcp.server import PyMCP
 
 logger = logging.getLogger(__name__)
@@ -144,8 +144,8 @@ class TestStripUnknownArgumentsMiddleware:
                     mcp_client,
                     name=valid_name,
                     unknown1="value1",
-                    unknown2="value2",
-                    unknown3="value3",
+                    unknown2={"key": "value2"},
+                    unknown3=3.14,
                 )
             )
 
@@ -162,3 +162,61 @@ class TestStripUnknownArgumentsMiddleware:
         assert "unknown1" in log_messages, "Expected 'unknown1' in logs"
         assert "unknown2" in log_messages, "Expected 'unknown2' in logs"
         assert "unknown3" in log_messages, "Expected 'unknown3' in logs"
+
+
+class TestResponseMetadataMiddleware:
+    """Dedicated test class for the TestResponseMetadataMiddleware."""
+
+    @pytest.fixture(scope="class")
+    @classmethod
+    def mcp_server(cls):
+        """Fixture to create an MCP server instance with the middleware."""
+        server = FastMCP()
+        mcp_obj = PyMCP()
+        server_with_features = mcp_obj.register_features(server)
+        server_with_features.add_middleware(ResponseMetadataMiddleware())
+        return server_with_features
+
+    @pytest.fixture(scope="class", autouse=True)
+    @classmethod
+    def mcp_client(cls, mcp_server):
+        """Fixture to create a client for the MCP server."""
+        mcp_client = Client(transport=mcp_server, timeout=60)
+        return mcp_client
+
+    async def call_tool(self, tool_name: str, mcp_client: Client, **kwargs):
+        """Helper method to call a tool on the MCP server."""
+        async with mcp_client:
+            result = await mcp_client.call_tool(tool_name, arguments=kwargs)
+            await mcp_client.close()
+        return result
+
+    def test_call_greet(self, mcp_client: Client, caplog):
+        """Test that unknown arguments are stripped from tool calls and logged."""
+        tool_name = "greet"
+        valid_name = "Test User"
+
+        with caplog.at_level(logging.DEBUG):
+            results = asyncio.run(
+                self.call_tool(
+                    tool_name,
+                    mcp_client,
+                    name=valid_name,
+                )
+            )
+
+        # Verify the tool call succeeded with valid argument
+        assert hasattr(results, "content"), "Expected results to have 'content' attribute"
+        assert hasattr(results, "structured_content"), "Expected results to have 'structured_content' attribute"
+        assert "result" in results.structured_content, "Expected 'structured_content' to have 'result' key"
+
+        # Verify the greeting contains the valid name (proving valid args passed through)
+        greeting = results.structured_content["result"]
+        assert valid_name in greeting, f"Expected greeting to contain '{valid_name}'"
+
+        assert getattr(results, "meta", None) is not None, "Expected results to have a valid 'meta' attribute"
+
+        # Verify logging occurred for unknown arguments
+        assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
+            "Expected debug logging of package metadata addition"
+        )

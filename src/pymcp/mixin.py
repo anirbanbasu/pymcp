@@ -1,4 +1,5 @@
 import copy
+import warnings
 from importlib.metadata import metadata as importlib_metadata
 from typing import Any, ClassVar
 
@@ -55,7 +56,7 @@ class MCPMixin:
 
         return mcp
 
-    def get_tool_result(self, result: Any, metadata: dict[str, Any] | None = None) -> ToolResult:
+    def get_tool_result(self, result: Any, metadata: dict[str, Any] | None = None) -> ToolResult:  # pragma: no cover
         """Create a ToolResult object with the given result and metadata, including package metadata.
 
         Args:
@@ -65,6 +66,12 @@ class MCPMixin:
         Returns:
             ToolResult: The ToolResult object containing the result and metadata.
         """
+        warnings.warn(
+            message="get_tool_result is deprecated and will be removed in future versions. "
+            "Response metadata will be handled by middleware.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
         if metadata is None:
             metadata = {}
         _package_metadata = importlib_metadata(PACKAGE_NAME)

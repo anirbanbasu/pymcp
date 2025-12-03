@@ -1,6 +1,9 @@
 import logging
+from importlib.metadata import metadata as importlib_metadata
 
 from fastmcp.server.middleware import Middleware
+
+from pymcp import PACKAGE_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -27,3 +30,20 @@ class StripUnknownArgumentsMiddleware(Middleware):
                 exc_info=True,
             )
         return await call_next(context)
+
+
+class ResponseMetadataMiddleware(Middleware):
+    """Middleware to add metadata to MCP responses."""
+
+    async def on_call_tool(self, context, call_next):
+        """Add metadata to tool responses."""
+        result = await call_next(context)
+        if result.meta is None:
+            result.meta = {}
+        _package_metadata = importlib_metadata(PACKAGE_NAME)
+        result.meta["_package_metadata"] = {
+            "name": _package_metadata["name"],
+            "version": _package_metadata["version"],
+        }
+        logger.debug(f"Added package metadata to tool response: {result.meta['_package_metadata']}")
+        return result
