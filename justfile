@@ -11,7 +11,7 @@ install-all:
     @echo "All project dependencies installed."
 
 # Install pre-commit hooks using 'prek'
-install-pre-commit:
+install-pre-commit-hooks:
     @echo "Installing pre-commit hooks using prek..."
     @prek install
     @echo "Pre-commit hooks installed."

@@ -128,9 +128,9 @@ class PyMCP(MCPMixin):
     ) -> ToolResult:
         """Generate a random password with specified length, optionally including special characters."""
         """The password will meet the complexity requirements of at least one lowercase letter, one uppercase letter, and two digits.
-        If special characters are included, it will also contain at least one such character."
+        If special characters are included, it will also contain at least one such character.
         Until the password meets these requirements, it will keep regenerating.
-        "This is a simple example of a tool that can be used to generate passwords. It is not intended for production use."""
+        This is a simple example of a tool that can be used to generate passwords. It is not intended for production use."""
         characters = string.ascii_letters + string.digits
         if use_special_chars:
             characters += string.punctuation
@@ -212,7 +212,8 @@ class PyMCP(MCPMixin):
             ),
         ],
     ) -> ToolResult:
-        """Calculate the number of ways to choose k items from n items without repetition and with order.If k is not provided, it defaults to n."""
+        """Calculate the number of ways to choose k items from n items without repetition and with order."""
+        """If k is not provided, it defaults to n."""
         assert isinstance(n, int) and n >= 1, "n must be a positive integer."
 
         if k is None:
