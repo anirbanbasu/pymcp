@@ -38,6 +38,8 @@ class ResponseMetadataMiddleware(Middleware):
     async def on_call_tool(self, context, call_next):
         """Add metadata to tool responses."""
         result = await call_next(context)
+        if result is None:
+            return result
         if result.meta is None:
             result.meta = {}
         _package_metadata = importlib_metadata(PACKAGE_NAME)
