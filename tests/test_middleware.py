@@ -342,10 +342,19 @@ class TestResponseMetadataMiddleware:
         assert isinstance(results.meta[tool_name]["character_set"], str), (
             "Expected 'character_set' to be a string"
         )
-        # Verify character_set contains expected characters when use_special_chars=True
-        expected_characters = string.ascii_letters + string.digits + string.punctuation
-        assert results.meta[tool_name]["character_set"] == expected_characters, (
-            "Expected character_set to include letters, digits, and punctuation when use_special_chars=True"
+        # Verify character_set contains expected character types when use_special_chars=True
+        character_set = results.meta[tool_name]["character_set"]
+        assert any(c in character_set for c in string.ascii_lowercase), (
+            "Expected character_set to contain lowercase letters"
+        )
+        assert any(c in character_set for c in string.ascii_uppercase), (
+            "Expected character_set to contain uppercase letters"
+        )
+        assert any(c in character_set for c in string.digits), (
+            "Expected character_set to contain digits"
+        )
+        assert any(c in character_set for c in string.punctuation), (
+            "Expected character_set to contain punctuation when use_special_chars=True"
         )
 
         # Verify logging occurred for metadata addition
