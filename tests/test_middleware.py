@@ -165,7 +165,7 @@ class TestStripUnknownArgumentsMiddleware:
 
 
 class TestResponseMetadataMiddleware:
-    """Dedicated test class for the TestResponseMetadataMiddleware."""
+    """Dedicated test class for the ResponseMetadataMiddleware."""
 
     @pytest.fixture(scope="class")
     @classmethod
