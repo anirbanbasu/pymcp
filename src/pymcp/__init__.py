@@ -12,6 +12,11 @@ env.read_env()
 class EnvVars:
     """Environment variables for pymcp configuration."""
 
+    ASGI_CORS_ALLOWED_ORIGINS = env.list(
+        "ASGI_CORS_ALLOWED_ORIGINS",
+        default=["*"],  # Allow all origins by default; override in production for security
+    )
+
     FASTMCP_HOST = env.str("FASTMCP_HOST", default="localhost")
     FASTMCP_PORT = env.int("FASTMCP_PORT", default=8000)
 

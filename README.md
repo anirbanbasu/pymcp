@@ -108,8 +108,9 @@ The following environment variables can be configured.
  - `PYMCP_LOG_LEVEL`: Sets the [Python log level](https://docs.python.org/3/library/logging.html#logging-levels) for the PyMCP server. Default is `INFO`.
  - `MCP_SERVER_TRANSPORT`: Sets the [FastMCP server transport](https://gofastmcp.com/deployment/running-server#transport-protocols) type of this MCP server. Default is `stdio`.
  - `RESPONSE_CACHE_TTL`: Sets the time, in seconds, for the time-to-live (TTL) cache that can be activated for caching prompt, resource and tool responses from the server. Default value is 30. Any integer value between 0 and 86400 (i.e., one day), both inclusive, is valid. Setting it to 0 effectively disables response caching.
- - `FASTMCP_HOST`: Sets the host address for the FastMCP server when using network transports (e.g., `streamable-http`, `sse`). Default is `127.0.0.1`.
- - `FASTMCP_PORT`: Sets the port number for the FastMCP server when using network transports. Default is `8080`.
+ - `FASTMCP_HOST`: Sets the host address for the FastMCP server when using network transports (e.g., `streamable-http`, `sse`). Default is `localhost`.
+ - `FASTMCP_PORT`: Sets the port number for the FastMCP server when using network transports. Default is `8000`.
+ - `ASGI_CORS_ALLOWED_ORIGINS`: Sets the [CORS allowed origins](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) when the MCP server is started with a transport over HTTP. Default is `["*"]`.
 
 # Standalone usage
 PyMCP can be started standalone as a MCP server with `stdio` transport by running the following. Alternatively, it can be started using `streamable-http` or `sse` transports by specifying the transport type using the `MCP_SERVER_TRANSPORT` environment variable.

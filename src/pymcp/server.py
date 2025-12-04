@@ -442,7 +442,7 @@ def main():  # pragma: no cover
             middleware = [
                 Middleware(
                     CORSMiddleware,
-                    allow_origins=["*"],  # Allow all origins; use specific origins for security
+                    allow_origins=EnvVars.ASGI_CORS_ALLOWED_ORIGINS,
                     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
                     allow_headers=[
                         "mcp-protocol-version",
