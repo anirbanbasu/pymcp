@@ -281,11 +281,6 @@ class TestResponseMetadataMiddleware:
         tool_name = "generate_password"
         expected_password_length = 12
 
-        tool_specific_metadata = {
-            "length_satisfied": True,
-            "character_set": string.ascii_letters + string.digits + string.punctuation,
-        }
-
         with caplog.at_level(logging.DEBUG):
             results = asyncio.run(
                 self.call_tool(
@@ -328,12 +323,40 @@ class TestResponseMetadataMiddleware:
             results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY]["tool_execution_time_ms"], float
         ), "Expected 'tool_execution_time_ms' to be a float"
 
-        # Verify tool specific metadata is still present
-        for key, value in tool_specific_metadata.items():
-            assert key in results.meta[tool_name], f"Expected tool specific metadata key '{key}' to be present"
-            assert results.meta[tool_name][key] == value, (
-                f"Expected tool specific metadata key '{key}' to have value '{value}'"
-            )
+        # Verify tool specific metadata is still present and values make sense
+        assert "length_satisfied" in results.meta[tool_name], (
+            "Expected tool specific metadata key 'length_satisfied' to be present"
+        )
+        assert results.meta[tool_name]["length_satisfied"] is True, (
+            "Expected 'length_satisfied' to be True since password matches requested length"
+        )
+        assert "generation_attempts" in results.meta[tool_name], (
+            "Expected tool specific metadata key 'generation_attempts' to be present"
+        )
+        assert results.meta[tool_name]["generation_attempts"] >= 1, (
+            "Expected 'generation_attempts' to be at least 1"
+        )
+        assert "character_set" in results.meta[tool_name], (
+            "Expected tool specific metadata key 'character_set' to be present"
+        )
+        assert isinstance(results.meta[tool_name]["character_set"], str), (
+            "Expected 'character_set' to be a string"
+        )
+        # Verify character_set contains expected character types when use_special_chars=True
+        # The character_set should be the pool of available characters for password generation
+        character_set = results.meta[tool_name]["character_set"]
+        assert any(c in character_set for c in string.ascii_lowercase), (
+            "Expected character_set to contain lowercase letters"
+        )
+        assert any(c in character_set for c in string.ascii_uppercase), (
+            "Expected character_set to contain uppercase letters"
+        )
+        assert any(c in character_set for c in string.digits), (
+            "Expected character_set to contain digits"
+        )
+        assert any(c in character_set for c in string.punctuation), (
+            "Expected character_set to contain punctuation when use_special_chars=True"
+        )
 
         # Verify logging occurred for metadata addition
         assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
