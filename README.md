@@ -101,6 +101,14 @@ Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/). Install
 just install
 ```
 
+# Environment variables
+
+The following environment variables can be configured.
+
+ - `PYMCP_LOG_LEVEL`: Sets the [Python log level](https://docs.python.org/3/library/logging.html#logging-levels) for the PyMCP server. Default is `INFO`.
+ - `MCP_SERVER_TRANSPORT`: Sets the [FastMCP server transport](https://gofastmcp.com/deployment/running-server#transport-protocols) type of this MCP server. Default is `stdio`.
+ - `RESPONSE_CACHE_TTL`: Sets the time, in seconds, for the time-to-live (TTL) cache that can be activated for caching prompt, resource and tool responses from the server. Default value is 30. Any integer value between 0 and 86400 (i.e., one day), both inclusive, is valid. Setting it to 0 effectively disables response caching.
+
 # Standalone usage
 PyMCP can be started standalone as a MCP server with `stdio` transport by running the following. Alternatively, it can be started using `streamable-http` or `sse` transports by specifying the transport type using the `MCP_SERVER_TRANSPORT` environment variable.
 
@@ -164,7 +172,7 @@ This will generate something like the following output.
 ```bash
 Name    Stmts   Miss    Cover   Missing
 ---------------------------------------
-TOTAL     210      0  100.00%
+TOTAL     219      0  100.00%
 ```
 
 # Contributing

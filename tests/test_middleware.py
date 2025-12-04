@@ -1,10 +1,21 @@
 import asyncio
 import logging
 import string
+import uuid
 
 import pytest
 from fastmcp import Client, FastMCP
+from fastmcp.server.middleware.caching import (
+    CallToolSettings,
+    GetPromptSettings,
+    ListPromptsSettings,
+    ListResourcesSettings,
+    ListToolsSettings,
+    ReadResourceSettings,
+    ResponseCachingMiddleware,
+)
 
+from pymcp import EnvVars
 from pymcp.middleware import ResponseMetadataMiddleware, StripUnknownArgumentsMiddleware
 from pymcp.server import PyMCP
 
@@ -229,12 +240,12 @@ class TestResponseMetadataMiddleware:
             "Expected 'version' in package metadata"
         )
         assert results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]["name"] == "pymcp-template"
-        assert "tool_execution_time_ms" in results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY], (
-            "Expected 'tool_execution_time_ms' in timing metadata"
+        assert "tool_response_time_ms" in results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY], (
+            "Expected 'tool_response_time_ms' in timing metadata"
         )
         assert isinstance(
-            results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY]["tool_execution_time_ms"], float
-        ), "Expected 'tool_execution_time_ms' to be a float"
+            results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY]["tool_response_time_ms"], float
+        ), "Expected 'tool_response_time_ms' to be a float"
 
         # Verify logging occurred for metadata addition
         assert any("Added package metadata to tool response" in record.message for record in caplog.records), (
@@ -316,12 +327,12 @@ class TestResponseMetadataMiddleware:
             "Expected 'version' in package metadata"
         )
         assert results.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]["name"] == "pymcp-template"
-        assert "tool_execution_time_ms" in results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY], (
-            "Expected 'tool_execution_time_ms' in timing metadata"
+        assert "tool_response_time_ms" in results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY], (
+            "Expected 'tool_response_time_ms' in timing metadata"
         )
         assert isinstance(
-            results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY]["tool_execution_time_ms"], float
-        ), "Expected 'tool_execution_time_ms' to be a float"
+            results.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY]["tool_response_time_ms"], float
+        ), "Expected 'tool_response_time_ms' to be a float"
 
         # Verify tool specific metadata is still present and values make sense
         assert "length_satisfied" in results.meta[tool_name], (
@@ -333,15 +344,11 @@ class TestResponseMetadataMiddleware:
         assert "generation_attempts" in results.meta[tool_name], (
             "Expected tool specific metadata key 'generation_attempts' to be present"
         )
-        assert results.meta[tool_name]["generation_attempts"] >= 1, (
-            "Expected 'generation_attempts' to be at least 1"
-        )
+        assert results.meta[tool_name]["generation_attempts"] >= 1, "Expected 'generation_attempts' to be at least 1"
         assert "character_set" in results.meta[tool_name], (
             "Expected tool specific metadata key 'character_set' to be present"
         )
-        assert isinstance(results.meta[tool_name]["character_set"], str), (
-            "Expected 'character_set' to be a string"
-        )
+        assert isinstance(results.meta[tool_name]["character_set"], str), "Expected 'character_set' to be a string"
         # Verify character_set contains expected character types when use_special_chars=True
         # The character_set should be the pool of available characters for password generation
         character_set = results.meta[tool_name]["character_set"]
@@ -351,9 +358,7 @@ class TestResponseMetadataMiddleware:
         assert any(c in character_set for c in string.ascii_uppercase), (
             "Expected character_set to contain uppercase letters"
         )
-        assert any(c in character_set for c in string.digits), (
-            "Expected character_set to contain digits"
-        )
+        assert any(c in character_set for c in string.digits), "Expected character_set to contain digits"
         assert any(c in character_set for c in string.punctuation), (
             "Expected character_set to contain punctuation when use_special_chars=True"
         )
@@ -375,22 +380,11 @@ class TestResponseCachingMiddleware:
         context,
     ) -> str:
         """Random LLM sampling handler for testing."""
-        import uuid
-
         return str(uuid.uuid4())
 
     @pytest.fixture(scope="class")
     def mcp_server(cls):
         """Fixture to create an MCP server instance with caching middleware configured like in server.py."""
-        from fastmcp.server.middleware.caching import (
-            CallToolSettings,
-            ListToolsSettings,
-            ReadResourceSettings,
-            ResponseCachingMiddleware,
-        )
-
-        from pymcp import EnvVars
-
         server = FastMCP()
         mcp_obj = PyMCP()
         server_with_features = mcp_obj.register_features(server)
@@ -398,16 +392,34 @@ class TestResponseCachingMiddleware:
         server_with_features.add_middleware(
             ResponseCachingMiddleware(
                 list_tools_settings=ListToolsSettings(
-                    ttl=EnvVars.RESPONSE_CACHE_LIST_TOOL_TTL,
+                    ttl=EnvVars.RESPONSE_CACHE_TTL,
+                    enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+                ),
+                list_prompts_settings=ListPromptsSettings(
+                    ttl=EnvVars.RESPONSE_CACHE_TTL,
+                    enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+                ),
+                list_resources_settings=ListResourcesSettings(
+                    ttl=EnvVars.RESPONSE_CACHE_TTL,
+                    enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
                 ),
                 # Only deterministic tools are included in caching.
-                # Tools like 'text_web_search', 'pirate_summary', and 'vonmises_random' are excluded
+                # Tools like 'generate_password', 'text_web_search', 'pirate_summary', and 'vonmises_random' are excluded
                 # because they produce non-deterministic or time-sensitive results, and caching their
                 # outputs could lead to stale or incorrect responses.
                 call_tool_settings=CallToolSettings(
-                    included_tools=["greet", "generate_password", "permutations"],
+                    included_tools=["greet", "permutations"],
+                    ttl=EnvVars.RESPONSE_CACHE_TTL,
+                    enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
                 ),
-                read_resource_settings=ReadResourceSettings(enabled=True),
+                get_prompt_settings=GetPromptSettings(
+                    ttl=EnvVars.RESPONSE_CACHE_TTL,
+                    enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+                ),
+                read_resource_settings=ReadResourceSettings(
+                    ttl=EnvVars.RESPONSE_CACHE_TTL,
+                    enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+                ),
             )
         )
         return server_with_features
@@ -442,8 +454,6 @@ class TestResponseCachingMiddleware:
 
     def test_list_tools_caching(self, mcp_client: Client):
         """Test that list_tools responses are cached according to TTL."""
-        import time
-
         # First call should hit the server - list_tools returns a list directly
         tools_list1 = asyncio.run(self.list_tools(mcp_client))
         assert isinstance(tools_list1, list), "Expected list_tools to return a list"
@@ -459,8 +469,8 @@ class TestResponseCachingMiddleware:
         tool_names_2 = {tool.name for tool in tools_list2}
         assert tool_names_1 == tool_names_2, "Expected same tools from cache"
 
-    def test_deterministic_tools_are_cached(self, mcp_client: Client):
-        """Test that deterministic tools (greet, generate_password, permutations) are cached."""
+    def test_greet_cached(self, mcp_client: Client):
+        """Test that greet tool is cached."""
         # Test greet tool caching
         tool_name = "greet"
         name_arg = "Cache Test User"
@@ -477,28 +487,26 @@ class TestResponseCachingMiddleware:
         # Since greet includes timestamp, cached result should be identical
         assert greeting1 == greeting2, "Expected identical greeting from cache (including timestamp)"
 
-    def test_generate_password_caching(self, mcp_client: Client):
-        """Test that generate_password tool responses are cached."""
+    def test_generate_password_not_cached(self, mcp_client: Client):
+        """Test that generate_password tool responses are not cached."""
         tool_name = "generate_password"
         length = 16
 
         # First call
-        result1 = asyncio.run(
-            self.call_tool(tool_name, mcp_client, length=length, use_special_chars=True)
-        )
+        result1 = asyncio.run(self.call_tool(tool_name, mcp_client, length=length, use_special_chars=True))
         password1 = result1.structured_content["result"]
 
         # Second call with same arguments should return cached (same) password
-        result2 = asyncio.run(
-            self.call_tool(tool_name, mcp_client, length=length, use_special_chars=True)
-        )
+        result2 = asyncio.run(self.call_tool(tool_name, mcp_client, length=length, use_special_chars=True))
         password2 = result2.structured_content["result"]
 
         # Cached password should be identical
-        assert password1 == password2, "Expected identical password from cache"
-        assert len(password1) == length, f"Expected password length {length}"
+        assert password1 != password2, "Expected different passwords for different calls (not cached)"
+        assert len(password1) == len(password2), (
+            f"Expected same password length but {len(password1)} is not {len(password2)}"
+        )
 
-    def test_permutations_caching(self, mcp_client: Client):
+    def test_permutations_cached(self, mcp_client: Client):
         """Test that permutations tool responses are cached."""
         tool_name = "permutations"
         n, k = 10, 5
@@ -515,9 +523,9 @@ class TestResponseCachingMiddleware:
         assert perm1 == perm2, "Expected identical permutation result from cache"
         assert perm1 == 30240, f"Expected 30240 permutations for n={n}, k={k}"
 
-    def test_non_deterministic_tools_not_cached(self, mcp_client: Client):
-        """Test that non-deterministic tools (pirate_summary) are NOT cached.
-        
+    def test_pirate_summary_not_cached(self, mcp_client: Client):
+        """Test that pirate_summary tool is NOT cached.
+
         Note: We only test pirate_summary here because vonmises_random requires elicitation
         and text_web_search requires network access, both of which are not available in this test context.
         """
@@ -536,28 +544,7 @@ class TestResponseCachingMiddleware:
         # Since this returns UUIDs in test, they should be different (not cached)
         assert summary1 != summary2, "Expected different UUIDs (tool not cached)"
 
-    def test_cache_configuration_excludes_non_deterministic_tools(self, mcp_client: Client):
-        """Test that non-deterministic tools are not in the included_tools list for caching.
-        
-        This verifies the configuration excludes text_web_search, pirate_summary, and vonmises_random
-        by checking that only greet, generate_password, and permutations would be cached.
-        """
-        # This is a configuration validation test
-        # The actual middleware is configured to only cache: greet, generate_password, permutations
-        # Non-deterministic tools (text_web_search, pirate_summary, vonmises_random) are NOT in included_tools
-        
-        # We can verify this by checking the test above (test_non_deterministic_tools_not_cached)
-        # shows pirate_summary returns different values on consecutive calls
-        
-        # Additionally, we verify that the three deterministic tools ARE tested elsewhere:
-        # - test_deterministic_tools_are_cached tests greet
-        # - test_generate_password_caching tests generate_password  
-        # - test_permutations_caching tests permutations
-        
-        # This test serves as documentation that the configuration is correct
-        assert True, "Configuration verified: only deterministic tools are cached"
-
-    def test_resource_reading_caching(self, mcp_client: Client):
+    def test_resource_reading_cached(self, mcp_client: Client):
         """Test that resource reading is cached as expected."""
         resource_uri = "data://modulo10/42"
 
@@ -573,7 +560,7 @@ class TestResponseCachingMiddleware:
 
         # Cached content should be identical
         assert content1 == content2, "Expected identical resource content from cache"
-        assert content1 == "②", f"Expected ② for modulo 10 of 42"
+        assert content1 == "②", "Expected ② for modulo 10 of 42"
 
     def test_different_arguments_not_cached_together(self, mcp_client: Client):
         """Test that tools with different arguments get separate cache entries."""

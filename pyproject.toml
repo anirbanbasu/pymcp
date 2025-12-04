@@ -38,6 +38,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "icecream>=2.1.8",
     "ty>=0.0.1a29",
 ]
 test = [

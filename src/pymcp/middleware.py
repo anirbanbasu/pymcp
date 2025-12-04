@@ -59,21 +59,24 @@ class ResponseMetadataMiddleware(Middleware):
 
     async def on_call_tool(self, context, call_next):
         """Add metadata to tool responses."""
+        # There is no support for top-level metadata for prompts or resources yet.
         # Do not encapsulate this in a try-except; let errors propagate
-        tool_name = getattr(context.message, "name", "unknown")
-        result, duration_ms = await self._time_operation(context, call_next, f"Tool '{tool_name}'")
+        feature_name = getattr(context.message, "name", "unknown")
+        result, duration_ms = await self._time_operation(context, call_next, f"Tool '{feature_name}'")
 
         if result is None:  # pragma: no cover
             # Isn't this an impossible scenario?
             return result
-        if result.meta is None:
+        if getattr(result, "meta", None) is None:
             result.meta = {}
         result.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY] = {
             "name": ResponseMetadataMiddleware._package_metadata["name"],
             "version": ResponseMetadataMiddleware._package_metadata["version"],
         }
         result.meta[ResponseMetadataMiddleware.TIMING_METADATA_KEY] = {
-            "tool_execution_time_ms": duration_ms,
+            "tool_response_time_ms": duration_ms,
         }
-        logger.debug(f"Added package metadata to tool response: {result.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]}")
+        logger.debug(
+            f"Added package metadata to tool response: {result.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY]}"
+        )
         return result

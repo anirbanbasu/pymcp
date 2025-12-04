@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from importlib.metadata import version
 from typing import Annotated, Any
 
+import uvicorn
 from ddgs import DDGS
 from fastmcp import Context, FastMCP
 from fastmcp.prompts.prompt import PromptMessage, TextContent
@@ -19,6 +20,9 @@ from fastmcp.server.elicitation import (
 )
 from fastmcp.server.middleware.caching import (
     CallToolSettings,
+    GetPromptSettings,
+    ListPromptsSettings,
+    ListResourcesSettings,
     ListToolsSettings,
     ReadResourceSettings,
     ResponseCachingMiddleware,
@@ -30,6 +34,8 @@ from mcp.types import (
     ErrorData,
 )
 from pydantic import Field
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 
 from pymcp import PACKAGE_NAME, EnvVars
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
@@ -101,7 +107,7 @@ class PyMCP(MCPMixin):
         ] = None,
     ) -> str:
         """Greet the caller with a quintessential Hello World message."""
-        welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(UTC).isoformat()}."
+        welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(UTC).isoformat()}. This response may be cached."
         response: str = ""
         if name is None or name.strip() == "":
             await ctx.warning("No name provided, using default greeting.")
@@ -389,16 +395,34 @@ def app() -> FastMCP:  # pragma: no cover
     app_with_features.add_middleware(
         ResponseCachingMiddleware(
             list_tools_settings=ListToolsSettings(
-                ttl=EnvVars.RESPONSE_CACHE_LIST_TOOL_TTL,
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            list_prompts_settings=ListPromptsSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            list_resources_settings=ListResourcesSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
             ),
             # Only deterministic tools are included in caching.
-            # Tools like 'text_web_search', 'pirate_summary', and 'vonmises_random' are excluded
+            # Tools like 'generate_password', 'text_web_search', 'pirate_summary', and 'vonmises_random' are excluded
             # because they produce non-deterministic or time-sensitive results, and caching their
             # outputs could lead to stale or incorrect responses.
             call_tool_settings=CallToolSettings(
-                included_tools=["greet", "generate_password", "permutations"],
+                included_tools=["greet", "permutations"],
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
             ),
-            read_resource_settings=ReadResourceSettings(enabled=True),
+            get_prompt_settings=GetPromptSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            read_resource_settings=ReadResourceSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
         )
     )
     # The last middleware must be the one to attach response metadata
@@ -411,9 +435,34 @@ def main():  # pragma: no cover
     try:
         # Run the FastMCP server using stdio by default.
         # Other transports can be configured as needed using the MCP_SERVER_TRANSPORT environment variable.
-        app().run(
-            transport=EnvVars.MCP_SERVER_TRANSPORT,
-        )
+        mcp_app = app()
+        transport_type = EnvVars.MCP_SERVER_TRANSPORT
+        if transport_type != "stdio":
+            # Configure CORS for browser-based clients, see: https://gofastmcp.com/deployment/http#cors-for-browser-based-clients
+            middleware = [
+                Middleware(
+                    CORSMiddleware,
+                    allow_origins=["*"],  # Allow all origins; use specific origins for security
+                    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+                    allow_headers=[
+                        "mcp-protocol-version",
+                        "mcp-session-id",
+                        "Authorization",
+                        "Content-Type",
+                    ],
+                    expose_headers=["mcp-session-id"],
+                ),
+            ]
+
+            asgi_app = mcp_app.http_app(middleware=middleware, transport=transport_type)
+            uvicorn.run(
+                asgi_app,
+                host=EnvVars.FASTMCP_HOST,
+                port=EnvVars.FASTMCP_PORT,
+                timeout_graceful_shutdown=5,  # seconds
+            )
+        else:
+            mcp_app.run(transport=transport_type)
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
