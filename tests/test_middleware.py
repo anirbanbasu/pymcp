@@ -500,7 +500,7 @@ class TestResponseCachingMiddleware:
         result2 = asyncio.run(self.call_tool(tool_name, mcp_client, length=length, use_special_chars=True))
         password2 = result2.structured_content["result"]
 
-        # Cached password should be identical
+        # Passwords should be different (not cached)
         assert password1 != password2, "Expected different passwords for different calls (not cached)"
         assert len(password1) == len(password2), (
             f"Expected same password length but {len(password1)} is not {len(password2)}"
