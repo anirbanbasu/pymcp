@@ -383,6 +383,7 @@ class TestResponseCachingMiddleware:
         return str(uuid.uuid4())
 
     @pytest.fixture(scope="class")
+    @classmethod
     def mcp_server(cls):
         """Fixture to create an MCP server instance with caching middleware configured like in server.py."""
         server = FastMCP()
@@ -425,6 +426,7 @@ class TestResponseCachingMiddleware:
         return server_with_features
 
     @pytest.fixture(scope="class", autouse=True)
+    @classmethod
     def mcp_client(cls, mcp_server):
         """Fixture to create a client for the MCP server."""
         mcp_client = Client(
