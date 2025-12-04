@@ -496,7 +496,7 @@ class TestResponseCachingMiddleware:
         result1 = asyncio.run(self.call_tool(tool_name, mcp_client, length=length, use_special_chars=True))
         password1 = result1.structured_content["result"]
 
-        # Second call with same arguments should return cached (same) password
+        # Second call with same arguments should NOT return cached password (should generate a different password)
         result2 = asyncio.run(self.call_tool(tool_name, mcp_client, length=length, use_special_chars=True))
         password2 = result2.structured_content["result"]
 
