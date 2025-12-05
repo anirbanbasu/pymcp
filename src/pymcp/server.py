@@ -7,8 +7,9 @@ import string
 import sys
 from datetime import UTC, datetime
 from importlib.metadata import version
-from typing import Annotated
+from typing import Annotated, Any
 
+import uvicorn
 from ddgs import DDGS
 from fastmcp import Context, FastMCP
 from fastmcp.prompts.prompt import PromptMessage, TextContent
@@ -17,18 +18,28 @@ from fastmcp.server.elicitation import (
     CancelledElicitation,
     DeclinedElicitation,
 )
+from fastmcp.server.middleware.caching import (
+    CallToolSettings,
+    GetPromptSettings,
+    ListPromptsSettings,
+    ListResourcesSettings,
+    ListToolsSettings,
+    ReadResourceSettings,
+    ResponseCachingMiddleware,
+)
 from fastmcp.tools.tool import ToolResult
-from marshmallow.validate import OneOf
 from mcp import McpError
 from mcp.types import (
     INVALID_PARAMS,
     ErrorData,
 )
 from pydantic import Field
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 
-from pymcp import PACKAGE_NAME, env
+from pymcp import PACKAGE_NAME, EnvVars
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
-from pymcp.middleware import StripUnknownArgumentsMiddleware
+from pymcp.middleware import ResponseMetadataMiddleware, StripUnknownArgumentsMiddleware
 from pymcp.mixin import MCPMixin
 
 package_version = version(PACKAGE_NAME)
@@ -94,9 +105,9 @@ class PyMCP(MCPMixin):
                 validate_default=False,
             ),
         ] = None,
-    ) -> ToolResult:
+    ) -> str:
         """Greet the caller with a quintessential Hello World message."""
-        welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(UTC).isoformat()}."
+        welcome_message = f"Welcome to the {PACKAGE_NAME} {package_version} server! The current date time in UTC is {datetime.now(UTC).isoformat()}. This response may be cached."
         response: str = ""
         if name is None or name.strip() == "":
             await ctx.warning("No name provided, using default greeting.")
@@ -104,7 +115,7 @@ class PyMCP(MCPMixin):
         else:
             await ctx.info(f"Greeting {name}.")
             response = f"Hello, {name}! {welcome_message}"
-        return self.get_tool_result(response)
+        return response
 
     async def generate_password(
         self,
@@ -134,8 +145,10 @@ class PyMCP(MCPMixin):
         characters = string.ascii_letters + string.digits
         if use_special_chars:
             characters += string.punctuation
+        password_generation_attempts = 0
         while True:
             password = "".join(secrets.choice(characters) for _ in range(length))
+            password_generation_attempts += 1
             if (
                 any(c.islower() for c in password)
                 and any(c.isupper() for c in password)
@@ -149,7 +162,16 @@ class PyMCP(MCPMixin):
                 await ctx.warning(  # pragma: no cover
                     f"Re-generating since the generated password did not meet complexity requirements: {password}"
                 )
-        return self.get_tool_result(password)
+        return self.get_tool_result(
+            result=password,
+            metadata={
+                "generate_password": {
+                    "length_satisfied": len(password) == length,
+                    "character_set": characters,
+                    "generation_attempts": password_generation_attempts,
+                }
+            },
+        )
 
     async def text_web_search(
         self,
@@ -183,7 +205,7 @@ class PyMCP(MCPMixin):
                 description="The number of pages to fetch. Default is 1, maximum is 10.",
             ),
         ] = 1,
-    ) -> ToolResult:
+    ) -> list[dict[str, Any]]:
         """Perform a text web search using the provided query using DDGS."""
         await ctx.info(f"Performing text web search for query: {query}")
         results = DDGS().text(  # ty: ignore[unresolved-attribute]
@@ -191,7 +213,7 @@ class PyMCP(MCPMixin):
         )
         if results:
             await ctx.info(f"Found {len(results)} results for the query.")
-        return self.get_tool_result(results)
+        return results
 
     async def permutations(
         self,
@@ -211,7 +233,7 @@ class PyMCP(MCPMixin):
                 description="The optional number of items to choose.",
             ),
         ],
-    ) -> ToolResult:
+    ) -> int:
         """Calculate the number of ways to choose k items from n items without repetition and with order."""
         """If k is not provided, it defaults to n."""
         assert isinstance(n, int) and n >= 1, "n must be a positive integer."
@@ -226,9 +248,9 @@ class PyMCP(MCPMixin):
                 )
             )
 
-        return self.get_tool_result(math.perm(n, k))
+        return math.perm(n, k)
 
-    async def pirate_summary(self, ctx: Context, text: str) -> ToolResult:
+    async def pirate_summary(self, ctx: Context, text: str) -> str | None:
         """Summarise the given text in a pirate style. This is an example of a tool that can use LLM sampling to generate a summary."""
         await ctx.info("Summarising text in pirate style using client LLM sampling.")
         response = await ctx.sample(
@@ -237,7 +259,7 @@ class PyMCP(MCPMixin):
             temperature=0.9,  # High creativity
             max_tokens=1024,  # Pirates can be a bit verbose!
         )
-        return self.get_tool_result(getattr(response, "text", None))  # type: ignore
+        return getattr(response, "text", None)  # type: ignore
 
     async def vonmises_random(
         self,
@@ -250,7 +272,7 @@ class PyMCP(MCPMixin):
                 le=2 * math.pi,
             ),
         ],
-    ) -> ToolResult:
+    ) -> float:
         """Generate a random number from the von Mises distribution. This is an example of a tool that uses elicitation to obtain the required parameter kappa (κ)."""
         await ctx.info("Requesting the user for the value of kappa for von Mises distribution.")
         response = await ctx.elicit(
@@ -278,7 +300,7 @@ class PyMCP(MCPMixin):
                         message="Operation cancelled by the user.",
                     )
                 )
-        return self.get_tool_result(random.vonmisesvariate(mu, kappa))
+        return random.vonmisesvariate(mu, kappa)
 
     async def resource_logo(self, ctx: Context) -> Base64EncodedBinaryDataResponse:
         """Get the base64 encoded PNG logo of PyMCP."""
@@ -370,6 +392,41 @@ def app() -> FastMCP:  # pragma: no cover
     mcp_obj = PyMCP()
     app_with_features = mcp_obj.register_features(app)
     app_with_features.add_middleware(StripUnknownArgumentsMiddleware())
+    app_with_features.add_middleware(
+        ResponseCachingMiddleware(
+            list_tools_settings=ListToolsSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            list_prompts_settings=ListPromptsSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            list_resources_settings=ListResourcesSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            # Only deterministic tools are included in caching.
+            # Tools like 'generate_password', 'text_web_search', 'pirate_summary', and 'vonmises_random' are excluded
+            # because they produce non-deterministic or time-sensitive results, and caching their
+            # outputs could lead to stale or incorrect responses.
+            call_tool_settings=CallToolSettings(
+                included_tools=["greet", "permutations"],
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            get_prompt_settings=GetPromptSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+            read_resource_settings=ReadResourceSettings(
+                ttl=EnvVars.RESPONSE_CACHE_TTL,
+                enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
+            ),
+        )
+    )
+    # The last middleware must be the one to attach response metadata
+    app_with_features.add_middleware(ResponseMetadataMiddleware())
     return app_with_features
 
 
@@ -378,13 +435,34 @@ def main():  # pragma: no cover
     try:
         # Run the FastMCP server using stdio by default.
         # Other transports can be configured as needed using the MCP_SERVER_TRANSPORT environment variable.
-        app().run(
-            transport=env.str(
-                name="MCP_SERVER_TRANSPORT",
-                default="stdio",
-                validate=OneOf(["stdio", "streamable-http", "sse"]),
+        mcp_app = app()
+        transport_type = EnvVars.MCP_SERVER_TRANSPORT
+        if transport_type != "stdio":
+            # Configure CORS for browser-based clients, see: https://gofastmcp.com/deployment/http#cors-for-browser-based-clients
+            middleware = [
+                Middleware(
+                    CORSMiddleware,
+                    allow_origins=EnvVars.ASGI_CORS_ALLOWED_ORIGINS,
+                    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+                    allow_headers=[
+                        "mcp-protocol-version",
+                        "mcp-session-id",
+                        "Authorization",
+                        "Content-Type",
+                    ],
+                    expose_headers=["mcp-session-id"],
+                ),
+            ]
+
+            asgi_app = mcp_app.http_app(middleware=middleware, transport=transport_type)
+            uvicorn.run(
+                asgi_app,
+                host=EnvVars.FASTMCP_HOST,
+                port=EnvVars.FASTMCP_PORT,
+                timeout_graceful_shutdown=5,  # seconds
             )
-        )
+        else:
+            mcp_app.run(transport=transport_type)
     except KeyboardInterrupt:
         sys.exit(0)
     finally:

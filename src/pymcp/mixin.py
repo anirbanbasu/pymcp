@@ -1,11 +1,11 @@
 import copy
-from importlib.metadata import metadata as importlib_metadata
+import logging
 from typing import Any, ClassVar
 
 from fastmcp import FastMCP
 from fastmcp.tools.tool import ToolResult
 
-from pymcp import PACKAGE_NAME
+logger = logging.getLogger(__name__)
 
 
 class MCPMixin:
@@ -55,7 +55,7 @@ class MCPMixin:
 
         return mcp
 
-    def get_tool_result(self, result: Any, metadata: dict[str, Any] | None = None) -> ToolResult:
+    def get_tool_result(self, result: Any, metadata: dict[str, Any] | None = None) -> ToolResult:  # pragma: no cover
         """Create a ToolResult object with the given result and metadata, including package metadata.
 
         Args:
@@ -65,11 +65,7 @@ class MCPMixin:
         Returns:
             ToolResult: The ToolResult object containing the result and metadata.
         """
-        if metadata is None:
-            metadata = {}
-        _package_metadata = importlib_metadata(PACKAGE_NAME)
-        metadata["_package_metadata"] = {
-            "name": _package_metadata["name"],
-            "version": _package_metadata["version"],
-        }
-        return ToolResult(structured_content={"result": result}, meta=metadata)
+        return ToolResult(
+            structured_content={"result": result} if not isinstance(result, dict) else result,
+            meta=metadata if metadata is not None else None,
+        )

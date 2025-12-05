@@ -204,7 +204,7 @@ class TestMCPServer:
             "Expected the results to have a 'structured_content' attribute."
         )
         assert "result" in results.structured_content, "Expected the 'structured_content' to have a 'result' key."
-        pattern = r"Hello(,?) (.+)! Welcome to the pymcp-template (\d+\.\d+\.\d+(\.?[a-zA-Z]+\.?\d+)?) server! The current date time in UTC is ([\d\-T:.+]+)."
+        pattern = r"Hello(,?) (.+)! Welcome to the pymcp-template (\d+\.\d+\.\d+(\.?[a-zA-Z]+\.?\d+)?) server! The current date time in UTC is ([\d\-T:.+]+). This response may be cached."
         result = results.structured_content["result"]
         match = re.match(pattern, result)
         assert match, (

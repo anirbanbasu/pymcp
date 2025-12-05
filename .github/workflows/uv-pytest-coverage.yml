@@ -27,5 +27,7 @@ jobs:
       - name: Install the project
         run: uv sync --all-groups
 
-      - name: Run tests using pytest
-        run: uv run --group test pytest tests/
+      - name: Run tests using coverage
+        run: uv run --group test coverage run -m pytest --capture=tee-sys -vvv --log-cli-level=INFO tests/
+      - name: Report coverage
+        run: uv run coverage report -m
