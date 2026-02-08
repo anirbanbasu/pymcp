@@ -1,50 +1,20 @@
 # Security Policy
 
+The PyMCP project and its maintainers take security vulnerabilities seriously.
+
 ## Reporting a Vulnerability
 
-The PyMCP project and its maintainers take security vulnerabilities seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
-
-### What Constitutes a Vulnerability?
-
-A security vulnerability is a weakness in the software that compromises data confidentiality, integrity, or availability. This may happen by enabling:
-
-- Remote code execution.
-- Elevated permissions or privilege escalation.
-- Unintended access to data or systems.
-- Denial of service attacks.
-- Bypass of security controls.
+We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
 
 **Note:** Intentional design decisions, feature requests, or suggestions for security improvements that do not involve an actual exploitable flaw are not considered vulnerabilities. If you have suggestions for security enhancements, please open a feature request instead.
 
 ### How to Report a Security Vulnerability
 
-If you discover a security vulnerability in this project, please report it by:
+If you think you have identified a security issue with a PyMCP project, _do not open a public issue_.
 
-1. **Opening a security issue** on our [GitHub issue tracker](https://github.com/anirbanbasu/PyMCP/issues/new)
-   - Please use the title prefix: `[SECURITY]`
-   - Mark the issue as sensitive if GitHub offers that option
-   - Provide detailed information about the vulnerability (see below)
+To responsibly report a security issue, please navigate to the "Security" tab for the repository, and click "Report a vulnerability".
 
-### Information to Include in Your Report
-
-To help us understand and address the issue quickly, please include:
-
-- A clear description of the vulnerability
-- Steps to reproduce the issue
-- Affected versions of PyMCP
-- Potential impact of the vulnerability
-- Any proof-of-concept code (if available)
-- Suggestions for fixing the issue (if you have any)
-
-You can use our security issue reporting template.
-
-## Recognition
-
-We believe in recognizing the valuable contributions of security researchers. If you report a valid vulnerability:
-
-- We will credit you in our security advisory and release notes (unless you prefer to remain anonymous).
-- Your contribution will be acknowledged in our project documentation.
-- We will work collaboratively with you throughout the disclosure process.
+Be sure to include as much detail as necessary in your report. As with reporting normal issues, a minimal reproducible example will help the maintainers address the issue faster.
 
 ## Out of Scope
 
@@ -69,13 +39,3 @@ While using PyMCP, we recommend:
 ## Questions?
 
 If you have questions about our security policy or the vulnerability disclosure process, please open a discussion on our GitHub repository.
-
-## Updates to This Policy
-
-This security policy may be updated from time to time. The latest version will always be available in this repository.
-
----
-
-**Last Updated**: February 8, 2026
-
-Thank you for helping keep PyMCP and its users safe!
