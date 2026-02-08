@@ -1,4 +1,4 @@
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue?logo=python&logoColor=3776ab&labelColor=e4e4e4)](https://www.python.org/downloads/release/python-3120/) [![pytest](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest-coverage.yml/badge.svg)](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest-coverage.yml) [![PyPI](https://img.shields.io/pypi/v/pymcp-template?label=pypi%20package)](https://pypi.org/project/pymcp-template/#history) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/anirbanbasu/pymcp/latest) [![smithery badge](https://smithery.ai/badge/@anirbanbasu/pymcp)](https://smithery.ai/server/@anirbanbasu/pymcp)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue?logo=python&logoColor=3776ab&labelColor=e4e4e4)](https://www.python.org/downloads/release/python-3120/) [![pytest](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest-coverage.yml/badge.svg)](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest-coverage.yml) [![PyPI](https://img.shields.io/pypi/v/pymcp-template?label=pypi%20package)](https://pypi.org/project/pymcp-template/#history) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/anirbanbasu/pymcp/latest)
 
 
 <p align="center">
@@ -160,7 +160,6 @@ The currently available remotely hosted options are as follows.
 
  - FastMCP Cloud: https://pymcp-template.fastmcp.app/mcp
  - Glama.AI: https://glama.ai/mcp/servers/@anirbanbasu/pymcp
- - Smithery.AI: https://smithery.ai/server/@anirbanbasu/pymcp
 
 # Testing and coverage
 
