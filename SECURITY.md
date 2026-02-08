@@ -8,6 +8,18 @@ We appreciate your efforts to responsibly disclose your findings and will make e
 
 **Note:** Intentional design decisions, feature requests, or suggestions for security improvements that do not involve an actual exploitable flaw are not considered vulnerabilities. If you have suggestions for security enhancements, please open a feature request instead.
 
+### What constitutes a Security Vulnerability
+
+A security vulnerability is a weakness in the software that compromises data confidentiality, integrity, or availability. This may happen by enabling:
+
+- **Remote code execution**: Allowing an attacker to run arbitrary code on the system.
+- **Elevated permissions or privilege escalation**: Gaining unauthorized access to higher privilege levels.
+- **Unintended access to data or systems**: Accessing data or functionality that should be restricted.
+- **Denial of service attacks**: Making the system unavailable to legitimate users.
+- **Bypass of security controls**: Circumventing authentication, authorization, or other security mechanisms.
+
+What separates a security vulnerability from other unwanted behavior (a non-security bug) is a compromise in one or more of the areas above: confidentiality, integrity, or availability.
+
 ### How to Report a Security Vulnerability
 
 If you think you have identified a security issue with the PyMCP project, _do not open a public issue_. To responsibly report a security issue, please navigate to the "Security" tab for the repository, and click "Report a vulnerability".
