@@ -89,7 +89,7 @@ The following components are available on this MCP server.
   - Input(s)
     - `task`: _`string`_: The description of the task for which a code implementation prompt will be generated.
   - Output(s)
-    - `PromptMessage` with the role of a `user` and a `content` as a `TextContent` representing the prompt.
+    - `str` representing the prompt.
 
 # Installation
 

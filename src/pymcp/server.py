@@ -12,7 +12,6 @@ from typing import Annotated, Any
 import uvicorn
 from ddgs import DDGS
 from fastmcp import Context, FastMCP
-from fastmcp.prompts.prompt import PromptMessage, TextContent
 from fastmcp.server.elicitation import (
     AcceptedElicitation,
     CancelledElicitation,
@@ -208,9 +207,7 @@ class PyMCP(MCPMixin):
     ) -> list[dict[str, Any]]:
         """Perform a text web search using the provided query using DDGS."""
         await ctx.info(f"Performing text web search for query: {query}")
-        results = DDGS().text(  # ty: ignore[unresolved-attribute]
-            query=query, region=region, max_results=max_results, page=pages
-        )
+        results = DDGS().text(query=query, region=region, max_results=max_results, page=pages)
         if results:
             await ctx.info(f"Found {len(results)} results for the query.")
         return results
@@ -259,7 +256,7 @@ class PyMCP(MCPMixin):
             temperature=0.9,  # High creativity
             max_tokens=1024,  # Pirates can be a bit verbose!
         )
-        return getattr(response, "text", None)  # type: ignore
+        return getattr(response, "text", None)
 
     async def vonmises_random(
         self,
@@ -281,7 +278,7 @@ class PyMCP(MCPMixin):
         )
         kappa: float = 1.0  # Default value
         match response:  # pragma: no cover
-            case AcceptedElicitation(data=kappa):  # type: ignore[misc]
+            case AcceptedElicitation(data=kappa):
                 await ctx.warning(f"Received kappa: {kappa}")
                 if kappa < 0:
                     raise McpError(
@@ -290,9 +287,9 @@ class PyMCP(MCPMixin):
                             message="kappa (κ) must be a positive number.",
                         )
                     )
-            case DeclinedElicitation():  # type: ignore[misc]
+            case DeclinedElicitation():
                 await ctx.warning("User declined to provide kappa (κ). Using default value of 1.0.")
-            case CancelledElicitation():  # type: ignore[misc]
+            case CancelledElicitation():
                 await ctx.warning("User cancelled the operation. The random number will NOT be generated.")
                 raise McpError(
                     error=ErrorData(
@@ -302,7 +299,7 @@ class PyMCP(MCPMixin):
                 )
         return random.vonmisesvariate(mu, kappa)
 
-    async def resource_logo(self, ctx: Context) -> Base64EncodedBinaryDataResponse:
+    async def resource_logo(self, ctx: Context) -> str:
         """Get the base64 encoded PNG logo of PyMCP."""
         await ctx.info("Reading the PNG logo for PyMCP.")
         with open("resources/logo.png", "rb") as logo_file:
@@ -317,7 +314,7 @@ class PyMCP(MCPMixin):
             hash=hex_digest,
             hash_algorithm=sha3_512_hasher.name,
         )
-        return response
+        return response.model_dump_json()
 
     async def resource_logo_svg(self, ctx: Context) -> str:
         """Get the PyMCP logo as SVG."""
@@ -367,16 +364,14 @@ class PyMCP(MCPMixin):
             )
         return unicode_symbol
 
-    async def code_prompt(self, ctx: Context, task: str) -> PromptMessage:
+    async def code_prompt(self, ctx: Context, task: str) -> str:
         """Get a prompt to write a code snippet in Python based on the specified task."""
-        content = f"""Write a Python code snippet to perform the following task:
+        return f"""Write a Python code snippet to perform the following task:
         [TASK]
         {task}
         [/TASK]
         The code should be well-commented and follow best practices.
         Make sure to include necessary imports and handle any exceptions that may arise."""
-
-        return PromptMessage(role="user", content=TextContent(type="text", text=content))
 
 
 def app() -> FastMCP:  # pragma: no cover
