@@ -122,7 +122,7 @@ class TestMCPServer:
         assert len(results) == 1, f"Expected one result for the {resource_name} resource."
         result = results[0]
         assert hasattr(result, "text"), "Expected the result to have a 'text' attribute containing the response."
-        svg_pattern = r"(?:<\?xml\b[^>]*>[^<]*)?(?:<!--.*?-->[^<]*)*(?:<svg|<!DOCTYPE svg)\b"
+        svg_pattern = r"(?:<\?xml\b[^>]*>[^<]*)?(?:<!--(?:[^-]|-(?!->))*-->[^<]*)*(?:<svg\b|<!DOCTYPE\s+svg\b)"
         svg_regexp = re.compile(svg_pattern, re.DOTALL | re.IGNORECASE)
         assert svg_regexp.match(result.text), "Expected the response to be a valid SVG document."
 
