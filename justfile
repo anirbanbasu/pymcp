@@ -48,9 +48,21 @@ type-check:
     @echo "Type checking complete."
 
 export MCP_SERVER_TRANSPORT := "streamable-http"
+
 # Run tests with coverage reporting
 test-coverage:
     @echo "Running tests with coverage..."
     @uv run --group test coverage run -m pytest --capture=tee-sys -vvv --log-cli-level=INFO tests/
     @uv run coverage report -m
     @echo "Test coverage complete."
+
+# Launch MCP Inspector for debugging
+launch-inspector:
+    #!/usr/bin/env bash
+    echo "Launching MCP Inspector..."
+    if [ ! -f ~/.nvm/nvm.sh ]; then
+        echo "Error: nvm is not installed or ~/.nvm/nvm.sh does not exist."
+        echo "Please install nvm from https://github.com/nvm-sh/nvm or ensure npx is available in your PATH."
+        exit 1
+    fi
+    . ~/.nvm/nvm.sh && nvm use --lts && npx @modelcontextprotocol/inspector
