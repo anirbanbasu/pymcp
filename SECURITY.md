@@ -10,9 +10,7 @@ We appreciate your efforts to responsibly disclose your findings and will make e
 
 ### How to Report a Security Vulnerability
 
-If you think you have identified a security issue with a PyMCP project, _do not open a public issue_.
-
-To responsibly report a security issue, please navigate to the "Security" tab for the repository, and click "Report a vulnerability".
+If you think you have identified a security issue with the PyMCP project, _do not open a public issue_. To responsibly report a security issue, please navigate to the "Security" tab for the repository, and click "Report a vulnerability".
 
 Be sure to include as much detail as necessary in your report. As with reporting normal issues, a minimal reproducible example will help the maintainers address the issue faster.
 
@@ -38,4 +36,4 @@ While using PyMCP, we recommend:
 
 ## Questions?
 
-If you have questions about our security policy or the vulnerability disclosure process, please open a discussion on our GitHub repository.
+If you have questions about our security policy or the vulnerability disclosure process, please open a discussion on this repository.
