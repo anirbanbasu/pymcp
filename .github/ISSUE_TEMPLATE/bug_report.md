@@ -24,9 +24,8 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
- - OS: [e.g. debian]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - OS: [e.g. Debian 13, Ubuntu 22.04 LTS]
+ - Browser: [e.g. Chrome v22.0, Safari v.31]
 
 **Additional context**
 Add any other context about the problem here.
