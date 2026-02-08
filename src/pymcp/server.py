@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from importlib.metadata import version
 from typing import Annotated, Any
 
+import pydantic_monty
 import uvicorn
 from ddgs import DDGS
 from fastmcp import Context, FastMCP
@@ -66,6 +67,10 @@ class PyMCP(MCPMixin):
             "fn": "permutations",
             "tags": ["math", "permutation", "example"],
             "annotations": {"readOnlyHint": True},
+        },
+        {
+            "fn": "run_python_code",
+            "tags": ["python", "monty", "secure interpreter", "example"],
         },
         {"fn": "pirate_summary", "tags": ["pirate-summary", "llm-sampling", "example"]},
         {"fn": "vonmises_random", "tags": ["experimental", "elicitation", "example"]},
@@ -247,6 +252,25 @@ class PyMCP(MCPMixin):
 
         return math.perm(n, k)
 
+    async def run_python_code(
+        self,
+        ctx: Context,
+        code: str,
+        inputs: dict[str, Any] | None = None,
+        script_name: str = "main.py",
+        check_types: bool = True,
+        type_definitions: str | None = None,
+    ) -> Any:
+        """Run the given Python code and return the output or error message."""
+        m = pydantic_monty.Monty(
+            code=code,
+            script_name=script_name,
+            inputs=list(inputs.keys()) if inputs else None,
+            type_check=check_types,
+            type_check_stubs=type_definitions,
+        )
+        return await pydantic_monty.run_monty_async(monty_runner=m, inputs=inputs)
+
     async def pirate_summary(self, ctx: Context, text: str) -> str | None:
         """Summarise the given text in a pirate style. This is an example of a tool that can use LLM sampling to generate a summary."""
         await ctx.info("Summarising text in pirate style using client LLM sampling.")
@@ -380,9 +404,7 @@ def app() -> FastMCP:  # pragma: no cover
         name=PACKAGE_NAME,
         version=package_version,
         instructions="A simple MCP server for testing purposes.",
-        on_duplicate_prompts="error",
-        on_duplicate_resources="error",
-        on_duplicate_tools="error",
+        on_duplicate="error",
     )
     mcp_obj = PyMCP()
     app_with_features = mcp_obj.register_features(app)

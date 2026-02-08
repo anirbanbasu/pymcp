@@ -1,6 +1,6 @@
 [project]
 name = "pymcp-template"
-version = "0.2.2"
+version = "0.2.3"
 description = "A template for developing MCP servers in Python"
 readme = "README.md"
 license = "MIT"
@@ -21,6 +21,7 @@ dependencies = [
     "ddgs>=9.5.4",
     "environs>=14.3.0",
     "fastmcp",
+    "pydantic-monty>=0.0.4",
 ]
 
 [project.scripts]

@@ -44,13 +44,24 @@ The following components are available on this MCP server.
     - `k`: _`integer`_ (_optional_): The number of items to choose. Default value is the value of `n`.
   - Output(s)
     - `TextContent` with number of ways to choose $k$ items from $n$, essentially ${}^{n}P_{k}$.
-5. **`pirate_summarise`**
+5. **`run_python_code`**
+  - Runs arbitrary Python code in a secure and fast interpreter using [Pydantic Monty](https://github.com/pydantic/monty). Note that Pydantic Monty is experimental and Python language support is partial as of February 8, 2026.
+  - Input(s)
+    - `code`: _`string`_: The Python code to run.
+    - `inputs`: _`dict[str, Any]`_ (_optional_): A dictionary of input values for the Python code. Default value is `None`.
+    - `script_name`: _`str`_ (_optional_): The name of the script used in traceback and error messages. Default value is `main.py`.
+    - `check_types`: _`bool`_ (_optional_): A flag to indicate whether to check types. Default value is `True`.
+    - `type_definitions`: _`str`_ (_optional_): Type definitions to be used for type checking. Default value is `None`.
+  - Output(s)
+    - `TextContent` with the output, if any, of the Python code.
+
+6. **`pirate_summarise`**
   - Summarises the given text in a pirate style. _This tool uses LLM client sampling. Hence, a sampling handler must exist on the client-side._
   - Input(s)
     - `text`: _`string`_: The text to summarise.
   - Output(s)
     - `TextContent` with the summary of `text` in pirate speak.
-6. **`vonmises_random`**
+7. **`vonmises_random`**
   - Generates a random number from the [von Mises distribution](https://reference.wolfram.com/language/ref/VonMisesDistribution.html). _This tool uses client elicitation to obtain the parameter kappa ($\kappa$). Hence, an elicitation handler must exist on the client-side._
   - Input(s)
     - `mu`: _`float`_: The parameter $\mu$ between 0 and $2\pi$.
@@ -138,6 +149,8 @@ npx @modelcontextprotocol/inspector uv run pymcp
 
 This will create a local URL at port 6274 with an authentication token, which you can copy and browse to on your browser. Once on the MCP Inspector UI, press _Connect_ to connect to the MCP server. Thereafter, you can explore the tools available on the server.
 
+You can, alternatively, launch the MCP inspector by running `just launch-inspector`.
+
 # Use it with Claude Desktop, Visual Studio, and so on
 
 The server entry to run with `stdio` transport that you can use with systems such as Claude Desktop, Visual Studio Code, and so on is as follows.
@@ -174,7 +187,7 @@ This will generate something like the following output.
 ```bash
 Name    Stmts   Miss    Cover   Missing
 ---------------------------------------
-TOTAL     220      0  100.00%
+TOTAL     222      0  100.00%
 ```
 
 # Contributing

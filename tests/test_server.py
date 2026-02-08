@@ -334,6 +334,62 @@ class TestMCPServer:
         with pytest.raises(ToolError, match=f"Error calling tool '{tool_name}'"):
             results = asyncio.run(self.call_tool(tool_name, mcp_client, n=16, k=32))
 
+    def test_tool_run_python_code(self, mcp_client: Client):
+        """Test to call the run_python_code tool on the MCP server."""
+        tool_name = "run_python_code"
+        greet_code = """
+def greet_monty(name: str | None = None) -> str:
+    if name is None or name.strip() == "":
+        return "Hello World from Monty!"
+    else:
+        return f"Hello, {name}! Monty is awesome!"
+
+greet_monty(name)
+"""
+        greet_code_typedefs = "name: str | None = None"
+        greet_code_inputs = {"name": "Sherlock Holmes"}
+        # Run with input
+        results_with_input = asyncio.run(
+            self.call_tool(
+                tool_name, mcp_client, code=greet_code, type_definitions=greet_code_typedefs, inputs=greet_code_inputs
+            )
+        )
+        assert hasattr(results_with_input, "content"), "Expected the results to have a 'content' attribute."
+        assert results_with_input.content[0].text == f"Hello, {greet_code_inputs['name']}! Monty is awesome!", (
+            f"Expected the output to be 'Hello, Sherlock Holmes! Monty is awesome!'. Obtained {results_with_input}."
+        )
+
+        # Run without input
+        results_without_input = asyncio.run(
+            self.call_tool(
+                tool_name,
+                mcp_client,
+                code=greet_code,
+                type_definitions=greet_code_typedefs,
+                inputs={list(greet_code_inputs.keys())[0]: None},
+            )
+        )
+        assert hasattr(results_without_input, "content"), "Expected the results to have a 'content' attribute."
+        assert results_without_input.content[0].text == "Hello World from Monty!", (
+            f"Expected the output to be 'Hello World from Monty!'. Obtained {results_without_input}."
+        )
+
+        # Test expression evaluation
+        expression = "x + 2"
+        results_for_expression = asyncio.run(
+            self.call_tool(
+                tool_name,
+                mcp_client,
+                code=expression,
+                inputs={"x": 5},
+                check_types=False,
+            )
+        )
+        assert hasattr(results_for_expression, "content"), "Expected the results to have a 'content' attribute."
+        assert results_for_expression.content[0].text == "7", (
+            f"Expected the output to be '7'. Obtained {results_for_expression}."
+        )
+
     def test_tool_pirate_summary(self, mcp_client: Client):
         """Test to call the pirate_summary tool on the MCP server."""
         tool_name = "pirate_summary"
