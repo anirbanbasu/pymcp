@@ -192,17 +192,7 @@ TOTAL     226      0  100.00%
 
 # Contributing
 
-Install [`prek`](https://prek.j178.dev/installation/) and install all dependencies using `just install-all` for the installation of PyMCP.
-
-Then enable `pre-commit` hooks by running the following in the _WD_.
-
-```bash
-just install-pre-commit-hooks
-```
-
-Also, check all the available development-specific targets by running `just -l`, e.g., `type-check`, `format`, etc.
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+See the [Contributing guide](CONTRIBUTING.md).
 
 # License
 
