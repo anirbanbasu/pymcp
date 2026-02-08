@@ -60,4 +60,9 @@ test-coverage:
 launch-inspector:
     #!/usr/bin/env bash
     echo "Launching MCP Inspector..."
+    if [ ! -f ~/.nvm/nvm.sh ]; then
+        echo "Error: nvm is not installed or ~/.nvm/nvm.sh does not exist."
+        echo "Please install nvm from https://github.com/nvm-sh/nvm or ensure npx is available in your PATH."
+        exit 1
+    fi
     . ~/.nvm/nvm.sh && nvm use --lts && npx @modelcontextprotocol/inspector

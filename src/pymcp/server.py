@@ -8,6 +8,7 @@ import sys
 from datetime import UTC, datetime
 from importlib.metadata import version
 from typing import Annotated, Any
+from xmlrpc.client import INTERNAL_ERROR
 
 import pydantic_monty
 import uvicorn
@@ -262,14 +263,22 @@ class PyMCP(MCPMixin):
         type_definitions: str | None = None,
     ) -> Any:
         """Run the given Python code and return the output or error message."""
-        m = pydantic_monty.Monty(
-            code=code,
-            script_name=script_name,
-            inputs=list(inputs.keys()) if inputs else None,
-            type_check=check_types,
-            type_check_stubs=type_definitions,
-        )
-        return await pydantic_monty.run_monty_async(monty_runner=m, inputs=inputs)
+        try:
+            m = pydantic_monty.Monty(
+                code=code,
+                script_name=script_name,
+                inputs=list(inputs.keys()) if inputs else None,
+                type_check=check_types,
+                type_check_stubs=type_definitions,
+            )
+            return await pydantic_monty.run_monty_async(monty_runner=m, inputs=inputs)
+        except Exception as e:
+            raise McpError(
+                error=ErrorData(
+                    code=INTERNAL_ERROR,
+                    message=str(e),
+                )
+            ) from e
 
     async def pirate_summary(self, ctx: Context, text: str) -> str | None:
         """Summarise the given text in a pirate style. This is an example of a tool that can use LLM sampling to generate a summary."""

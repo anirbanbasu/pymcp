@@ -390,6 +390,21 @@ greet_monty(name)
             f"Expected the output to be '7'. Obtained {results_for_expression}."
         )
 
+        # Test that a runtime error generates a ToolError
+        with pytest.raises(
+            ToolError,
+            match=f"Error calling tool '{tool_name}': TypeError: can only concatenate str \\(not \"int\"\\) to str",
+        ):
+            asyncio.run(
+                self.call_tool(
+                    tool_name,
+                    mcp_client,
+                    code=expression,
+                    inputs={"x": "abc"},
+                    check_types=False,
+                )
+            )
+
     def test_tool_pirate_summary(self, mcp_client: Client):
         """Test to call the pirate_summary tool on the MCP server."""
         tool_name = "pirate_summary"

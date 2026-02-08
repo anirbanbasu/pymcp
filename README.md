@@ -55,7 +55,7 @@ The following components are available on this MCP server.
   - Output(s)
     - `TextContent` with the output, if any, of the Python code.
 
-6. **`pirate_summarise`**
+6. **`pirate_summary`**
   - Summarises the given text in a pirate style. _This tool uses LLM client sampling. Hence, a sampling handler must exist on the client-side._
   - Input(s)
     - `text`: _`string`_: The text to summarise.
@@ -187,7 +187,7 @@ This will generate something like the following output.
 ```bash
 Name    Stmts   Miss    Cover   Missing
 ---------------------------------------
-TOTAL     222      0  100.00%
+TOTAL     226      0  100.00%
 ```
 
 # Contributing
