@@ -22,7 +22,7 @@ What separates a security vulnerability from other unwanted behavior (a non-secu
 
 ### How to Report a Security Vulnerability
 
-If you think you have identified a security issue with the PyMCP project, _do not open a public issue_. To responsibly report a security issue, please navigate to the "Security" tab for the repository, and click "Report a vulnerability".
+If you think you have identified a security issue with the PyMCP project, _do not open a public issue_. To responsibly report a security issue, please navigate to the "Security" tab for the repository, and click "[Report a vulnerability](https://github.com/anirbanbasu/pymcp/security/advisories/new)".
 
 Be sure to include as much detail as necessary in your report. As with reporting normal issues, a minimal reproducible example will help the maintainers address the issue faster.
 
