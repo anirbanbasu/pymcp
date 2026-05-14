@@ -3,7 +3,7 @@ import logging
 from typing import Any, ClassVar
 
 from fastmcp import FastMCP
-from fastmcp.tools.tool import ToolResult
+from fastmcp.tools import ToolResult
 
 logger = logging.getLogger(__name__)
 

@@ -44,7 +44,7 @@ class Base64EncodedBinaryDataResponse(BaseModel):
             hasher.hexdigest()
             if not self.hash_algorithm.startswith("shake")
             # Make sure that for variable length hash algorithms, such as SHAKE128 and SHAKE256, we get a fixed length hash for testing
-            else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # type: ignore[call-arg]
+            else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # ty: ignore[too-many-positional-arguments]
         )
         if computed_hash != self.hash:
             raise ValueError(f"Hash mismatch: provided hash {self.hash} does not match computed hash {computed_hash}.")

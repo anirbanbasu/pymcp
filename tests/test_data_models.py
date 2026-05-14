@@ -29,7 +29,7 @@ class TestDataModels:
         hash_value = (
             hasher.hexdigest()
             if not hash_algorithm.startswith("shake")
-            else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # type: ignore[call-arg]
+            else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # ty: ignore[too-many-positional-arguments]
         )
 
         model_instance = Base64EncodedBinaryDataResponse(

@@ -12,8 +12,8 @@ from fastmcp import Client, FastMCP
 from fastmcp.client.elicitation import ElicitRequestParams, ElicitResult
 from fastmcp.client.sampling import SamplingMessage, SamplingParams
 from fastmcp.exceptions import ToolError
-from fastmcp.prompts.prompt import TextContent
 from mcp.shared.context import RequestContext
+from mcp.types import TextContent
 
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
 from pymcp.server import (

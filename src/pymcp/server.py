@@ -28,7 +28,7 @@ from fastmcp.server.middleware.caching import (
     ReadResourceSettings,
     ResponseCachingMiddleware,
 )
-from fastmcp.tools.tool import ToolResult
+from fastmcp.tools import ToolResult
 from mcp import McpError
 from mcp.types import (
     INVALID_PARAMS,
@@ -271,7 +271,7 @@ class PyMCP(MCPMixin):
                 type_check=check_types,
                 type_check_stubs=type_definitions,
             )
-            return await pydantic_monty.run_monty_async(monty_runner=m, inputs=inputs)
+            return await m.run_async(inputs=inputs)
         except Exception as e:
             raise McpError(
                 error=ErrorData(

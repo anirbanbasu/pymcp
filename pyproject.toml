@@ -1,6 +1,6 @@
 [project]
 name = "pymcp-template"
-version = "0.2.3"
+version = "0.2.4"
 description = "A template for developing MCP servers in Python"
 readme = "README.md"
 license = "MIT"

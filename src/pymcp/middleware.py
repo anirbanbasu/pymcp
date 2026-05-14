@@ -68,7 +68,7 @@ class ResponseMetadataMiddleware(Middleware):
             # Isn't this an impossible scenario?
             return result
         if getattr(result, "meta", None) is None:
-            result.meta = {}
+            result.meta = {}  # pragma: no cover
         result.meta[ResponseMetadataMiddleware.PACKAGE_METADATA_KEY] = {
             "name": ResponseMetadataMiddleware._package_metadata["name"],
             "version": ResponseMetadataMiddleware._package_metadata["version"],

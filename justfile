@@ -66,3 +66,9 @@ launch-inspector:
         exit 1
     fi
     . ~/.nvm/nvm.sh && nvm use --lts && npx @modelcontextprotocol/inspector
+
+# Run the Open Source Vulnerability scanner
+vulnerability-scan:
+    @echo "Running Open Source Vulnerability scanner..."
+    @osv-scanner scan source -r .
+    @echo "Vulnerability scan complete."
