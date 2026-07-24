@@ -1,24 +1,17 @@
 import base64
 import hashlib
 import math
-import random
 import secrets
 import string
 import sys
 from datetime import UTC, datetime
 from importlib.metadata import version
 from typing import Annotated, Any
-from xmlrpc.client import INTERNAL_ERROR
 
 import pydantic_monty
 import uvicorn
 from ddgs import DDGS
 from fastmcp import Context, FastMCP
-from fastmcp.server.elicitation import (
-    AcceptedElicitation,
-    CancelledElicitation,
-    DeclinedElicitation,
-)
 from fastmcp.server.middleware.caching import (
     CallToolSettings,
     GetPromptSettings,
@@ -29,11 +22,8 @@ from fastmcp.server.middleware.caching import (
     ResponseCachingMiddleware,
 )
 from fastmcp.tools import ToolResult
-from mcp import McpError
-from mcp.types import (
-    INVALID_PARAMS,
-    ErrorData,
-)
+from mcp import MCPError
+from mcp_types import INTERNAL_ERROR, INVALID_PARAMS
 from pydantic import Field
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
@@ -73,8 +63,6 @@ class PyMCP(MCPMixin):
             "fn": "run_python_code",
             "tags": ["python", "monty", "secure interpreter", "example"],
         },
-        {"fn": "pirate_summary", "tags": ["pirate-summary", "llm-sampling", "example"]},
-        {"fn": "vonmises_random", "tags": ["experimental", "elicitation", "example"]},
     ]
     resources = [
         {
@@ -244,11 +232,9 @@ class PyMCP(MCPMixin):
         if k is None:
             k = n
         if k > n:
-            raise McpError(
-                error=ErrorData(
-                    code=INVALID_PARAMS,
-                    message=f"k ({k}) cannot be greater than n ({n}).",
-                )
+            raise MCPError(
+                code=INVALID_PARAMS,
+                message=f"k ({k}) cannot be greater than n ({n}).",
             )
 
         return math.perm(n, k)
@@ -264,73 +250,18 @@ class PyMCP(MCPMixin):
     ) -> Any:
         """Run the given Python code and return the output or error message."""
         try:
-            m = pydantic_monty.Monty(
-                code=code,
-                script_name=script_name,
-                inputs=list(inputs.keys()) if inputs else None,
-                type_check=check_types,
-                type_check_stubs=type_definitions,
-            )
-            return await m.run_async(inputs=inputs)
+            async with pydantic_monty.AsyncMonty() as pool:
+                async with pool.checkout(
+                    script_name=script_name,
+                    type_check=check_types,
+                    type_check_stubs=type_definitions,
+                ) as session:
+                    return await session.feed_run(code, inputs=inputs)
         except Exception as e:
-            raise McpError(
-                error=ErrorData(
-                    code=INTERNAL_ERROR,
-                    message=str(e),
-                )
+            raise MCPError(
+                code=INTERNAL_ERROR,
+                message=str(e),
             ) from e
-
-    async def pirate_summary(self, ctx: Context, text: str) -> str | None:
-        """Summarise the given text in a pirate style. This is an example of a tool that can use LLM sampling to generate a summary."""
-        await ctx.info("Summarising text in pirate style using client LLM sampling.")
-        response = await ctx.sample(
-            messages=text,
-            system_prompt="Your task is to summarise a given text in a pirate style. Use a fun and engaging tone but be concise.",
-            temperature=0.9,  # High creativity
-            max_tokens=1024,  # Pirates can be a bit verbose!
-        )
-        return getattr(response, "text", None)
-
-    async def vonmises_random(
-        self,
-        ctx: Context,
-        mu: Annotated[
-            float,
-            Field(
-                description="The mean angle mu (μ), expressed in radians between 0 and 2π",
-                ge=0,
-                le=2 * math.pi,
-            ),
-        ],
-    ) -> float:
-        """Generate a random number from the von Mises distribution. This is an example of a tool that uses elicitation to obtain the required parameter kappa (κ)."""
-        await ctx.info("Requesting the user for the value of kappa for von Mises distribution.")
-        response = await ctx.elicit(
-            message="Please provide the value of kappa (κ) for the von Mises distribution. It should be a positive number.",
-            response_type=float,
-        )
-        kappa: float = 1.0  # Default value
-        match response:  # pragma: no cover
-            case AcceptedElicitation(data=kappa):
-                await ctx.warning(f"Received kappa: {kappa}")
-                if kappa < 0:
-                    raise McpError(
-                        error=ErrorData(
-                            code=INVALID_PARAMS,
-                            message="kappa (κ) must be a positive number.",
-                        )
-                    )
-            case DeclinedElicitation():
-                await ctx.warning("User declined to provide kappa (κ). Using default value of 1.0.")
-            case CancelledElicitation():
-                await ctx.warning("User cancelled the operation. The random number will NOT be generated.")
-                raise McpError(
-                    error=ErrorData(
-                        code=INVALID_PARAMS,
-                        message="Operation cancelled by the user.",
-                    )
-                )
-        return random.vonmisesvariate(mu, kappa)
 
     async def resource_logo(self, ctx: Context) -> str:
         """Get the base64 encoded PNG logo of PyMCP."""
@@ -433,7 +364,7 @@ def app() -> FastMCP:  # pragma: no cover
                 enabled=EnvVars.RESPONSE_CACHE_TTL > 0,
             ),
             # Only deterministic tools are included in caching.
-            # Tools like 'generate_password', 'text_web_search', 'pirate_summary', and 'vonmises_random' are excluded
+            # Tools like 'generate_password' and 'text_web_search' are excluded
             # because they produce non-deterministic or time-sensitive results, and caching their
             # outputs could lead to stale or incorrect responses.
             call_tool_settings=CallToolSettings(

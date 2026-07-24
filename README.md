@@ -55,18 +55,8 @@ The following components are available on this MCP server.
   - Output(s)
     - `TextContent` with the output, if any, of the Python code.
 
-6. **`pirate_summary`**
-  - Summarises the given text in a pirate style. _This tool uses LLM client sampling. Hence, a sampling handler must exist on the client-side._
-  - Input(s)
-    - `text`: _`string`_: The text to summarise.
-  - Output(s)
-    - `TextContent` with the summary of `text` in pirate speak.
-7. **`vonmises_random`**
-  - Generates a random number from the [von Mises distribution](https://reference.wolfram.com/language/ref/VonMisesDistribution.html). _This tool uses client elicitation to obtain the parameter kappa ($\kappa$). Hence, an elicitation handler must exist on the client-side._
-  - Input(s)
-    - `mu`: _`float`_: The parameter $\mu$ between 0 and $2\pi$.
-  - Output(s)
-    - `TextContent` with the a random number from the von Mises distribution.
+> [!NOTE]
+> The `pirate_summary` (LLM client sampling) and `vonmises_random` (client elicitation) example tools have been removed. Both relied on server-initiated requests (`ctx.sample()` and `ctx.elicit()`), which SEP-2577 removed from the modern MCP protocol (`2026-07-28`) in favour of a stateless per-request envelope with no back-channel for the server to call back into the client. FastMCP now marks both APIs deprecated — they still function, but only on the older, handshake-era (session-based) protocol. Since PyMCP tracks the cutting edge of FastMCP, these tools were dropped rather than pinned to a deprecated protocol era.
 
 ## Resources
 
@@ -187,7 +177,7 @@ This will generate something like the following output.
 ```bash
 Name    Stmts   Miss    Cover   Missing
 ---------------------------------------
-TOTAL     226      0  100.00%
+TOTAL     214      0  100.00%
 ```
 
 # Contributing

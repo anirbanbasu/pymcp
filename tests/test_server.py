@@ -1,19 +1,13 @@
 import asyncio
 import logging
-import math
-import random
 import re
 import string
-import uuid
 from datetime import datetime
 
 import pytest
 from fastmcp import Client, FastMCP
-from fastmcp.client.elicitation import ElicitRequestParams, ElicitResult
-from fastmcp.client.sampling import SamplingMessage, SamplingParams
 from fastmcp.exceptions import ToolError
-from mcp.shared.context import RequestContext
-from mcp.types import TextContent
+from mcp_types import TextContent
 
 from pymcp.data_model.response_models import Base64EncodedBinaryDataResponse
 from pymcp.server import (
@@ -26,29 +20,6 @@ logger = logging.getLogger(__name__)
 
 class TestMCPServer:
     """Test suite for the MCP server features."""
-
-    @classmethod
-    async def random_llm_sampling_handler(
-        cls,
-        messages: list[SamplingMessage],
-        params: SamplingParams,
-        context: RequestContext,
-    ) -> str:
-        # Since we do not have a language model at our disposal, ignore all the paramers and generate a unique ID.
-        logger.info(f"Received LLM sampling request: {getattr(messages[-1].content, 'text', 'no text content')}")
-        return str(uuid.uuid4())
-
-    @classmethod
-    async def random_elicitation_handler(
-        cls,
-        message: str,
-        response_type: type,
-        params: ElicitRequestParams,
-        context: RequestContext,
-    ) -> ElicitResult:
-        # Since we are in the midst of a test, ignore all the paramers and generate a random response.
-        logger.info(f"Received elicitation request: {message}")
-        return response_type(value=random.uniform(0.0, 2.0))
 
     @pytest.fixture(scope="class", autouse=True)
     @classmethod
@@ -66,8 +37,6 @@ class TestMCPServer:
         mcp_client = Client(
             transport=mcp_server,
             timeout=60,
-            sampling_handler=TestMCPServer.random_llm_sampling_handler,
-            elicitation_handler=TestMCPServer.random_elicitation_handler,
         )
         return mcp_client
 
@@ -404,46 +373,3 @@ greet_monty(name)
                     check_types=False,
                 )
             )
-
-    def test_tool_pirate_summary(self, mcp_client: Client):
-        """Test to call the pirate_summary tool on the MCP server."""
-        tool_name = "pirate_summary"
-        results = asyncio.run(
-            self.call_tool(
-                tool_name,
-                mcp_client,
-                text="This is a sample text to request the summary of.",
-            )
-        )
-        assert hasattr(results, "content"), "Expected the results to have a 'content' attribute."
-        assert len(results.content) == 1, f"Expected one result for the {tool_name} tool."
-        assert getattr(results, "structured_content", None) is not None, (
-            "Expected the results to have a 'structured_content' attribute."
-        )
-        assert "result" in results.structured_content, "Expected the 'structured_content' to have a 'result' key."
-        result = results.structured_content["result"]
-        # Since we do not have a language model at our disposal, we expect a UUID.
-        uuid_pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$"
-        match = re.match(uuid_pattern, result)
-        assert match, (
-            f"Expected the response to be a UUID. The obtained response does not match the expected format: {result}"
-        )
-
-    def test_tool_vonmises_random(self, mcp_client: Client):
-        """Test to call the vonmises_random tool on the MCP server."""
-        tool_name = "vonmises_random"
-        results = asyncio.run(
-            self.call_tool(
-                tool_name,
-                mcp_client,
-                mu=math.pi * random.uniform(0, 2),  # Random mu between 0 and 2*pi
-            )
-        )
-        assert hasattr(results, "content"), "Expected the results to have a 'content' attribute."
-        assert len(results.content) == 1, f"Expected one result for the {tool_name} tool."
-        assert getattr(results, "structured_content", None) is not None, (
-            "Expected the results to have a 'structured_content' attribute."
-        )
-        assert "result" in results.structured_content, "Expected the 'structured_content' to have a 'result' key."
-        result = results.structured_content["result"]
-        assert type(result) is float, "Expected the response to be a floating point number."
