@@ -1,3 +1,5 @@
+
+
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue?logo=python&logoColor=3776ab&labelColor=e4e4e4)](https://www.python.org/downloads/release/python-3120/) [![pytest](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest-coverage.yml/badge.svg)](https://github.com/anirbanbasu/pymcp/actions/workflows/uv-pytest-coverage.yml) [![PyPI](https://img.shields.io/pypi/v/pymcp-template?label=pypi%20package)](https://pypi.org/project/pymcp-template/#history) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/anirbanbasu/pymcp/latest) [![CodeQL Advanced](https://github.com/anirbanbasu/pymcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/anirbanbasu/pymcp/actions/workflows/codeql.yml) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/anirbanbasu/pymcp/badge)](https://scorecard.dev/viewer/?uri=github.com/anirbanbasu/pymcp)
 
 
@@ -96,7 +98,7 @@ The following components are available on this MCP server.
 
 The directory where you clone this repository will be referred to as the _working directory_ or _WD_ hereinafter.
 
-Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/). Install [`just`](https://github.com/casey/just?tab=readme-ov-file#installation). To install the project with its minimal dependencies in a virtual environment, run the following in the _WD_. To install all non-essential dependencies (_which are required for developing and testing_), replace the `install` taget with the `install-all` target in the following command.
+Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/). Install [`just`](https://github.com/casey/just?tab=readme-ov-file#installation). To install the project with its minimal dependencies in a virtual environment, run the following in the _WD_. To install all non-essential dependencies (_which are required for developing and testing_), replace the `install` target with the `install-all` target in the following command.
 
 ```bash
 just install
