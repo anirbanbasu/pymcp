@@ -98,7 +98,7 @@ The following components are available on this MCP server.
 
 The directory where you clone this repository will be referred to as the _working directory_ or _WD_ hereinafter.
 
-Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/). Install [`just`](https://github.com/casey/just?tab=readme-ov-file#installation). To install the project with its minimal dependencies in a virtual environment, run the following in the _WD_. To install all non-essential dependencies (_which are required for developing and testing_), replace the `install` taget with the `install-all` target in the following command.
+Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/). Install [`just`](https://github.com/casey/just?tab=readme-ov-file#installation). To install the project with its minimal dependencies in a virtual environment, run the following in the _WD_. To install all non-essential dependencies (_which are required for developing and testing_), replace the `install` target with the `install-all` target in the following command.
 
 ```bash
 just install
