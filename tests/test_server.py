@@ -180,7 +180,7 @@ class TestMCPServer:
             f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result}"
         )
         name = match.group(2)  # Extracted name
-        assert name == name_to_be_greeted if name_to_be_greeted else "World", (
+        assert name == name_to_be_greeted, (
             f"Expected the name in the greeting to be '{name_to_be_greeted}', but got '{name}'."
         )
         version = match.group(3)  # Extracted version

@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 - Build backend switched from `hatchling` to `uv_build`.
 - `fastmcp` dependency widened from a git-pinned pre-release commit to the released `4.0` line (`>=4.0.3,<4.1`) from PyPI.
+- Dependencies upgraded, closing out the remaining open Dependabot PRs: `coverage` 7.15.2 → 7.16.1 ([#112](https://github.com/anirbanbasu/pymcp/pull/112)), `environs` 15.0.1 → 15.2.0 ([#110](https://github.com/anirbanbasu/pymcp/pull/110)), `pydantic-monty` 0.0.19 → 0.0.23 ([#113](https://github.com/anirbanbasu/pymcp/pull/113)), and `ty` 0.0.63 → 0.0.81 ([#114](https://github.com/anirbanbasu/pymcp/pull/114)).
 
 ### Deprecated
 
@@ -32,7 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ### Fixed
 
-- None documented yet.
+- A test assertion in `test_tool_greet` (`tests/test_server.py`) that operator-precedence made a no-op for falsy names, surfaced by the `ty` 0.0.81 upgrade catching the now-dead conditional branch it hid.
 
 ### Security
 
