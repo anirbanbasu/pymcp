@@ -1,0 +1,92 @@
+name: Bug report
+description: Something in pymcp isn't working as expected.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact tool/resource/prompt call (name + arguments) that triggers it.
+      placeholder: |
+        1. Called `text_web_search` with query ...
+        2. ...
+      render: json
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Include any error messages or unexpected output verbatim.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Which feature is affected?
+      options:
+        - greet
+        - generate_password
+        - text_web_search
+        - permutations
+        - run_python_code
+        - resource_logo
+        - resource_logo_svg
+        - resource_unicode_modulo10
+        - code_prompt
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      options:
+        - stdio
+        - streamable-http
+        - sse
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: pymcp version
+      placeholder: e.g. 0.2.4 (see pyproject.toml)
+    validations:
+      required: true
+
+  - type: input
+    id: mcp-client
+    attributes:
+      label: MCP client
+      placeholder: e.g. Claude Code, MCP Inspector
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      render: shell
+    validations:
+      required: false

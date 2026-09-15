@@ -21,7 +21,7 @@ Also, check all the available development-specific targets by running `just -l`,
 By contributing to this project, you agree to the following:
 
 1. **License:** Your contributions will be licensed under the **MIT License**.
-2. **Developer Certificate of Origin (DCO):** To ensure a clear chain of ownership, we strongly encourage all commits to be "signed-off." However, this has not yet been enforced through a workflow yet.
+2. **Developer Certificate of Origin (DCO):** To ensure a clear chain of ownership, all commits must be "signed-off." This is enforced on pull requests through a workflow.
 
 ### Developer Certificate of Origin (DCO)
 By adding `Signed-off-by: Your Name <email@example.com>` to your commit message, you certify that you have the right to submit the work under the terms of the [Developer Certificate of Origin 1.1](https://developercertificate.org).

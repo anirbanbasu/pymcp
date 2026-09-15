@@ -1,0 +1,44 @@
+on:
+  push:
+    branches: [master]
+    paths:
+      - "**.py"
+      - "pyproject.toml"
+      - "uv.lock"
+  pull_request:
+    branches: ["master"]
+  schedule:
+    # CVEs can be disclosed against an unchanged uv.lock, so this also runs on a weekly schedule,
+    # independent of any push/PR activity.
+    - cron: "12 12 * * 1"
+
+name: OSV-Scanner
+
+jobs:
+  scan-scheduled:
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+    permissions:
+      # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
+      actions: read
+      # Require writing security events to upload SARIF file to security tab
+      security-events: write
+      # Read commit contents
+      contents: read
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@880d9b542cc66d36d91d51b3fbcc038f5f28cfc5" # v2.5.1
+    with:
+      # Mirrors `just vulnerability-scan` (`osv-scanner scan source -r .`), so local and CI results stay consistent.
+      scan-args: |-
+        -r
+        ./
+
+  scan-pr:
+    if: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      actions: read
+      security-events: write
+      contents: read
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@880d9b542cc66d36d91d51b3fbcc038f5f28cfc5" # v2.5.1
+    with:
+      scan-args: |-
+        -r
+        ./

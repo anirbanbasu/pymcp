@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest a new tool, resource, prompt, or capability for pymcp.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What can't you currently do, and why does it matter?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: What would the tool/resource/prompt actually do? Include example calls if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

@@ -56,7 +56,9 @@ The following components are available on this MCP server.
     - `TextContent` with the output, if any, of the Python code.
 
 > [!NOTE]
-> The `pirate_summary` (LLM client sampling) and `vonmises_random` (client elicitation) example tools have been removed. Both relied on server-initiated requests (`ctx.sample()` and `ctx.elicit()`), which SEP-2577 removed from the modern MCP protocol (`2026-07-28`) in favour of a stateless per-request envelope with no back-channel for the server to call back into the client. FastMCP now marks both APIs deprecated — they still function, but only on the older, handshake-era (session-based) protocol. Since PyMCP tracks the cutting edge of FastMCP, these tools were dropped rather than pinned to a deprecated protocol era.
+> The `pirate_summary` (LLM client sampling) and `vonmises_random` (client elicitation) example tools have been removed. Both relied on server-initiated requests (`ctx.sample()` and `ctx.elicit()`), which SEP-2577 removed from the modern MCP protocol (`2026-07-28`) in favour of a stateless per-request envelope with no back-channel for the server to call back into the client. FastMCP now marks both APIs deprecated — they still function, but only on the older, handshake-era (session-based) protocol. These tools were dropped rather than kept working against a deprecated protocol era.
+>
+> This does not affect the tools, resources, and prompts that remain: the underlying MCP SDK negotiates the protocol version per connection and serves both `2026-07-28`+ and handshake-era clients automatically, with no code changes needed here. Only server-initiated back-channel patterns (i.e., anything using `ctx.sample()` or `ctx.elicit()`) are legacy-only. If you fork this template and want to add a tool that relies on client sampling or elicitation, be aware it will only work against clients that negotiate the older, deprecated protocol.
 
 ## Resources
 
