@@ -1389,7 +1389,7 @@ crypto = [
 
 [[package]]
 name = "pymcp-template"
-version = "0.2.4"
+version = "0.3.0.post1"
 source = { editable = "." }
 dependencies = [
     { name = "ddgs" },

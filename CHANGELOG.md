@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ## [unreleased]
 
-## [0.3.0] - 2026-09-15
+## [0.3.0.post1] - 2026-09-15
+
+> [!NOTE]
+> Originally tagged `v.0.3.0`, but `pyproject.toml` was never bumped off `0.2.4` before that tag was cut, so its release build re-produced the already-published `0.2.4` wheel/sdist and PyPI rejected the upload as a duplicate filename. `v.0.3.0` is a published, immutable GitHub release/tag and cannot be deleted, retargeted, or reused — it remains in the repository's release history as a broken artifact. This `0.3.0.post1` release carries the same changes under a version PyPI hasn't seen before.
 
 ### Added
 
@@ -219,8 +222,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - Package renamed for PyPI publishing, with `README.md` updated to reflect the PyPI package badge and Glama/Smithery listings.
 - Package and dependencies upgraded.
 
-[unreleased]: https://github.com/anirbanbasu/pymcp/compare/v.0.3.0...HEAD
-[0.3.0]: https://github.com/anirbanbasu/pymcp/compare/v.0.2.4...v.0.3.0
+[unreleased]: https://github.com/anirbanbasu/pymcp/compare/v.0.3.0.post1...HEAD
+[0.3.0.post1]: https://github.com/anirbanbasu/pymcp/compare/v.0.2.4...v.0.3.0.post1
 [0.2.4]: https://github.com/anirbanbasu/pymcp/compare/v.0.2.3...v.0.2.4
 [0.2.3]: https://github.com/anirbanbasu/pymcp/compare/v.0.2.0...v.0.2.3
 [0.2.0]: https://github.com/anirbanbasu/pymcp/compare/v.0.1.8...v.0.2.0
