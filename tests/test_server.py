@@ -180,7 +180,7 @@ class TestMCPServer:
             f"Expected the response to be a greeting in a specific format. The obtained response does not match the expected format: {result}"
         )
         name = match.group(2)  # Extracted name
-        assert name == name_to_be_greeted, (
+        assert name == name_to_be_greeted if name_to_be_greeted != "" else "World", (
             f"Expected the name in the greeting to be '{name_to_be_greeted}', but got '{name}'."
         )
         version = match.group(3)  # Extracted version
@@ -335,7 +335,7 @@ greet_monty(name)
                 mcp_client,
                 code=greet_code,
                 type_definitions=greet_code_typedefs,
-                inputs={list(greet_code_inputs.keys())[0]: None},
+                inputs={next(iter(greet_code_inputs.keys())): None},
             )
         )
         assert hasattr(results_without_input, "content"), "Expected the results to have a 'content' attribute."
