@@ -19,7 +19,7 @@ install-pre-commit-hooks:
 # Update pre-commit hooks using 'prek'
 pre-commit-update:
     @echo "Updating pre-commit hooks using prek..."
-    @prek auto-update
+    @prek update
     @echo "Pre-commit hooks updated."
 
 # Upgrade project dependencies using 'uv'

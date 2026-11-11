@@ -245,6 +245,7 @@ class TestResponseMetadataMiddleware:
         """Test that the middleware passes up exceptions."""
         tool_name = "permutations"
 
+        error_message = ""
         with caplog.at_level(logging.DEBUG):
             try:
                 results = asyncio.run(
@@ -256,16 +257,18 @@ class TestResponseMetadataMiddleware:
                     )
                 )
             except Exception as e:
-                logger.error(f"Exception during tool call. {e}", exc_info=True)
+                error_message = str(e)
+                logger.exception("Exception during tool call.")
                 results = None
 
         # Verify the tool call returns None because an exception was raised (k > n is invalid)
         assert results is None, "Expected results to be None because of exception in tool"
 
         # Verify error logging occurred
-        assert any(
-            record.levelno == logging.ERROR and "cannot be greater" in record.message for record in caplog.records
-        ), "Expected error logging due to exception in tool call"
+        assert "cannot be greater" in error_message, "Expected the tool call to fail with the k > n error"
+        assert any(record.levelno == logging.ERROR for record in caplog.records), (
+            "Expected error logging due to exception in tool call"
+        )
 
         assert any("failed after" in record.message for record in caplog.records), (
             "Expected warning logging of operation failure"

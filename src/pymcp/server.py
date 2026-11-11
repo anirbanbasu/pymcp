@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import hashlib
 import math
@@ -6,7 +7,8 @@ import string
 import sys
 from datetime import UTC, datetime
 from importlib.metadata import version
-from typing import Annotated, Any
+from pathlib import Path
+from typing import Annotated, Any, ClassVar
 
 import pydantic_monty
 import uvicorn
@@ -39,7 +41,7 @@ package_version = version(PACKAGE_NAME)
 class PyMCP(MCPMixin):
     """A simple MCP server implementation demonstrating various features."""
 
-    tools = [
+    tools: ClassVar[list[dict[str, Any]]] = [
         {
             "fn": "greet",
             "tags": ["greeting", "example"],
@@ -64,7 +66,7 @@ class PyMCP(MCPMixin):
             "tags": ["python", "monty", "secure interpreter", "example"],
         },
     ]
-    resources = [
+    resources: ClassVar[list[dict[str, Any]]] = [
         {
             "uri": "data://logo",
             "fn": "resource_logo",
@@ -83,7 +85,7 @@ class PyMCP(MCPMixin):
             "fn": "resource_unicode_modulo10",
         },
     ]
-    prompts = [
+    prompts: ClassVar[list[dict[str, Any]]] = [
         {"fn": "code_prompt", "tags": ["example", "code-generation"]},
     ]
 
@@ -250,13 +252,15 @@ class PyMCP(MCPMixin):
     ) -> Any:
         """Run the given Python code and return the output or error message."""
         try:
-            async with pydantic_monty.AsyncMonty() as pool:
-                async with pool.checkout(
+            async with (
+                pydantic_monty.AsyncMonty() as pool,
+                pool.checkout(
                     script_name=script_name,
                     type_check=check_types,
                     type_check_stubs=type_definitions,
-                ) as session:
-                    return await session.feed_run(code, inputs=inputs)
+                ) as session,
+            ):
+                return await session.feed_run(code, inputs=inputs)
         except Exception as e:
             raise MCPError(
                 code=INTERNAL_ERROR,
@@ -266,13 +270,11 @@ class PyMCP(MCPMixin):
     async def resource_logo(self, ctx: Context) -> str:
         """Get the base64 encoded PNG logo of PyMCP."""
         await ctx.info("Reading the PNG logo for PyMCP.")
-        with open("resources/logo.png", "rb") as logo_file:
-            logo_content = logo_file.read()
-            sha3_512_hasher = hashlib.sha3_512()
-            sha3_512_hasher.update(logo_content)
-            hex_digest = sha3_512_hasher.hexdigest()
-            await ctx.info(f"Read {len(logo_content)} bytes from the logo file. SHA3-512: {hex_digest}")
-            logo_file.close()
+        logo_content = await asyncio.to_thread(Path("resources/logo.png").read_bytes)
+        sha3_512_hasher = hashlib.sha3_512()
+        sha3_512_hasher.update(logo_content)
+        hex_digest = sha3_512_hasher.hexdigest()
+        await ctx.info(f"Read {len(logo_content)} bytes from the logo file. SHA3-512: {hex_digest}")
         response = Base64EncodedBinaryDataResponse(
             data=base64.b64encode(logo_content).decode(),
             hash=hex_digest,
@@ -283,10 +285,8 @@ class PyMCP(MCPMixin):
     async def resource_logo_svg(self, ctx: Context) -> str:
         """Get the PyMCP logo as SVG."""
         await ctx.info("Reading the SVG logo for PyMCP.")
-        with open("resources/logo.svg", "rb") as logo_file:
-            logo_content = logo_file.read()
-            await ctx.info(f"Read {len(logo_content)} bytes from the SVG logo file.")
-            logo_file.close()
+        logo_content = await asyncio.to_thread(Path("resources/logo.svg").read_bytes)
+        await ctx.info(f"Read {len(logo_content)} bytes from the SVG logo file.")
         return logo_content.decode()
 
     async def resource_unicode_modulo10(

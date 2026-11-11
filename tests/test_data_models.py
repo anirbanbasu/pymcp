@@ -3,6 +3,7 @@ import hashlib
 import logging
 import random
 import secrets
+from typing import Any, cast
 
 import pytest
 from pydantic import ValidationError
@@ -29,7 +30,7 @@ class TestDataModels:
         hash_value = (
             hasher.hexdigest()
             if not hash_algorithm.startswith("shake")
-            else hasher.hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)  # ty: ignore[too-many-positional-arguments]
+            else cast("Any", hasher).hexdigest(Base64EncodedBinaryDataResponse.SHAKE_DIGEST_LENGTH)
         )
 
         model_instance = Base64EncodedBinaryDataResponse(
